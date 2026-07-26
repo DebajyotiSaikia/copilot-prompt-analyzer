@@ -34,32 +34,59 @@ the site check on every push and pull request.
 
 Both are blocked identically: the gallery API rejects publisher writes with
 `InvalidReCaptchaTokenException` — "You can update a publisher directly from the
-Marketplace website" — so no amount of CLI work gets around them.
+Marketplace website" — so no amount of CLI work gets around them. Open
+https://marketplace.visualstudio.com/manage/publishers/debajyotisaikia and edit
+the publisher; it is the same form used to create it.
 
-- [ ] Repoint the publisher profile's **Support** and **Source code repository**
-      fields at `https://github.com/DebajyotiSaikia/copilot-prompt-analyzer`.
-      They still name the pre-rename repository and survive only on a GitHub
-      redirect, which lapses if anything else ever claims the old slug.
-- [ ] Verify `deb0.com` for the verified-publisher badge. The portal issues a
-      TXT record to add at IONOS. Cosmetic; it does not gate publishing.
+- [ ] Repoint **Support** at
+      `https://github.com/DebajyotiSaikia/copilot-prompt-analyzer/issues` and
+      **Source code repository** at
+      `https://github.com/DebajyotiSaikia/copilot-prompt-analyzer`. Both still
+      name the pre-rename repository and survive only on a GitHub redirect,
+      which lapses if anything else ever claims the old slug.
+- [ ] In the same form, put `https://deb0.com` in **Verified domain** and press
+      **Verify**. It returns a TXT record to add at IONOS; once that resolves,
+      the publisher shows a verified badge. Cosmetic — it does not gate
+      publishing, and the record is separate from the `prompts` CNAME.
 
-## 2. Blocked on a separate account
+## 2. Not worth doing — Open VSX
 
-- [ ] Mirror to Open VSX so VSCodium, Cursor and Windsurf users can install it.
-      Needs an Eclipse Foundation account, a signed publisher agreement and its
-      own token — none of which can be automated. Once the token exists,
-      `npx ovsx publish extension/copilot-prompt-analyzer-<version>.vsix -p <token>`
-      takes the same VSIX unchanged.
+Dropped after checking. Open VSX serves VSCodium, Cursor and Windsurf, and
+**neither `github.copilot` nor `github.copilot-chat` is published there** (both
+404 on the Open VSX API). Without Copilot Chat those editors have no
+`chatSessions` history to read and no `vscode.lm` provider, so classification,
+Ask and the four model-written reports cannot run. The extension would install
+and then do essentially nothing.
 
-## 3. Blocked on relaunching your editor
+Revisit only if the analyzer learns to read another assistant's history format.
 
-- [ ] Film the four AI-backed beats: **Build working prompt**, **Ask**, and the
-      three model-written reports. The scratch profile the recorder creates is
-      not signed in to Copilot, so none of them can run there.
-      `node demo/capture.mjs --attach` drives an already-running signed-in VS
-      Code instead, but that instance has to have been launched with
-      `--remote-debugging-port=9333`. The beats themselves still need writing in
-      `demo/capture.mjs` and `demo/narration.mjs`.
+## 3. Film the four AI-backed beats
+
+**Build working prompt**, **Ask**, and the three model-written reports are the
+headline features and none of them are on camera — the video shows only the
+local report. The homepage and the Marketplace listing both lead with working
+prompts, so the demo is selling something it never shows.
+
+The blocker is narrower than it looked. Copilot Chat is a **built-in** extension
+in current VS Code, so the scratch profile at `%TEMP%\cca-demo-vscode` already
+has it — it is simply signed out.
+
+- [ ] Sign the scratch profile in to Copilot once. It persists in that profile's
+      `user-data`, so every later recording just works:
+
+      ```
+      & "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" `
+        --user-data-dir "$env:TEMP\cca-demo-vscode\user-data" `
+        --extensions-dir "$env:TEMP\cca-demo-vscode\extensions"
+      ```
+
+      Then sign in from the account menu and close the window. **Do not pass
+      `--fresh` to `capture.mjs` afterwards** — it deletes the profile and the
+      sign-in with it.
+
+- [ ] Write the beats in `demo/capture.mjs` and their lines in
+      `demo/narration.mjs`. Each AI beat streams, so it needs to wait for
+      completion rather than a fixed hold.
 
 ## 4. Things worth not rediscovering
 

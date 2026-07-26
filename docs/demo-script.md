@@ -13,11 +13,11 @@ node demo/capture.mjs --video
 That produces `demo/demo.mp4`, `demo/demo.gif` and nine stills in `demo/shots/`.
 Copy whichever you need into `site/`.
 
-| Flag       | Effect                                                          |
-| ---------- | --------------------------------------------------------------- |
-| _(none)_   | Stills only. Fast, useful when checking layout.                   |
+| Flag       | Effect                                                             |
+| ---------- | ------------------------------------------------------------------ |
+| _(none)_   | Stills only. Fast, useful when checking layout.                    |
 | `--video`  | Also records frames, stitches them with ffmpeg, adds the voiceover |
-| `--silent` | Skips the voiceover                                               |
+| `--silent` | Skips the voiceover                                                |
 | `--fresh`  | Rebuilds the scratch profile from nothing                          |
 | `--keep`   | Leaves VS Code running so you can inspect the final state          |
 | `--attach` | Drives an already-running VS Code instead of a scratch profile     |
