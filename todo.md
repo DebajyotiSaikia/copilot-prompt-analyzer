@@ -110,3 +110,9 @@ call it through `cmd.exe /c "npx --yes @vscode/vsce ..."`.
 or `AZURE_SPEECH_KEY_FILE` override it. Run `node scripts/secret-scan.mjs` before
 every release — it reads `git ls-files`, so it only ever checks what would
 actually be published.
+
+**The site.** `node scripts/site-check.mjs` validates `site/` before a deploy:
+every local asset exists, in-page anchors resolve, ids are unique, images carry
+alt text and intrinsic dimensions, heading levels never skip, and the metadata
+social previews need is present. It caught nothing on the last run, which is the
+point — it is cheap to keep passing.
