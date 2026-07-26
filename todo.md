@@ -30,24 +30,21 @@ the site check on every push and pull request.
 
 ---
 
-## 1. Blocked on the Marketplace website
+## 1. Optional — verified publisher badge
 
-Both are blocked identically: the gallery API rejects publisher writes with
-`InvalidReCaptchaTokenException` — "You can update a publisher directly from the
-Marketplace website" — so no amount of CLI work gets around them. Open
-https://marketplace.visualstudio.com/manage/publishers/debajyotisaikia and edit
-the publisher; it is the same form used to create it.
+The publisher's Support and Source links now point at the renamed repository
+(verified against the gallery API), so nothing depends on GitHub's rename
+redirect any more. Only the badge is left.
 
-- [ ] Repoint **Support** at
-      `https://github.com/DebajyotiSaikia/copilot-prompt-analyzer/issues` and
-      **Source code repository** at
-      `https://github.com/DebajyotiSaikia/copilot-prompt-analyzer`. Both still
-      name the pre-rename repository and survive only on a GitHub redirect,
-      which lapses if anything else ever claims the old slug.
-- [ ] In the same form, put `https://deb0.com` in **Verified domain** and press
-      **Verify**. It returns a TXT record to add at IONOS; once that resolves,
-      the publisher shows a verified badge. Cosmetic — it does not gate
-      publishing, and the record is separate from the `prompts` CNAME.
+- [ ] Put `https://deb0.com` in **Verified domain** on
+      https://marketplace.visualstudio.com/manage/publishers/debajyotisaikia and
+      press **Verify**. It returns a TXT record to add at IONOS, separate from
+      the `prompts` CNAME. Purely cosmetic: it does not gate publishing, and
+      `isDomainVerified` is currently `false`.
+
+      Note that publisher edits are only possible through that page — the
+      gallery API rejects them with `InvalidReCaptchaTokenException`, "You can
+      update a publisher directly from the Marketplace website".
 
 ## 2. Not worth doing — Open VSX
 
