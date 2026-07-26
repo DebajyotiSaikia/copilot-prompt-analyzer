@@ -28,38 +28,29 @@ The homepage redeploys itself on any push that touches `site/`. CI runs the
 typecheck, the tests, a production bundle, a trial package, the secret scan and
 the site check on every push and pull request.
 
+**Nothing is outstanding.** The sections below are reference, not work.
+
 ---
 
-## 1. Film the AI-backed beats
+## 1. Re-recording the demo
 
-**Build working prompt**, **Ask** and the model-written reports are the headline
-features, and the video shows none of them — only the locally computed report.
-The homepage and the Marketplace listing both lead with working prompts, so the
-demo currently sells something it never demonstrates.
+`node demo/capture.mjs --video` from `extension/`. Two minutes, narrated,
+1920×1080, thirteen beats including the three that need a model — **Build
+working prompt**, **Correction patterns** and **Ask**.
 
-The beats are written. `capture.mjs` probes the model picker on startup, films
-`workingPrompt`, `aiReport` and `ask` when a model is available, and skips them
-with a logged reason when one is not. Their narration is already synthesised, so
-nothing else needs writing.
+Those three only film when the recording profile is signed in to Copilot;
+`capture.mjs` probes the model picker at startup and logs which path it took.
+The profile at `%TEMP%\cca-demo-vscode` is signed in and persists, so this is
+already handled — but **never pass `--fresh`**, which deletes the profile and
+the sign-in with it. To sign in again:
 
-One manual step is left, and it cannot be automated — signing in is an
-interactive OAuth consent flow.
+```
+& "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" `
+  --user-data-dir "$env:TEMP\cca-demo-vscode\user-data" `
+  --extensions-dir "$env:TEMP\cca-demo-vscode\extensions"
+```
 
-- [ ] Sign the recording profile in to Copilot once. Copilot Chat is built in to
-      VS Code, so the profile already has it; it is simply signed out, and
-      `vscode.lm` returns zero models as a result.
-
-      ```
-      & "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" `
-        --user-data-dir "$env:TEMP\cca-demo-vscode\user-data" `
-        --extensions-dir "$env:TEMP\cca-demo-vscode\extensions"
-      ```
-
-      Sign in from the account menu, close the window, then run
-      `node demo/capture.mjs --video`. It persists, so this is once only.
-
-      **Never pass `--fresh` afterwards** — that deletes the profile and the
-      sign-in with it.
+See `docs/demo-script.md` for how the beats and narration fit together.
 
 ## 2. Things worth not rediscovering
 
