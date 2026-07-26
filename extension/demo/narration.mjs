@@ -1,9 +1,18 @@
 // The spoken script. Each entry is one beat of the demo; capture.mjs holds the
 // screen until its line has finished, so the picture and the words stay in sync.
+//
+// The beats marked "needs a model" only run when the recording profile is
+// signed in to Copilot. Their clips are still synthesised — unused lines simply
+// never get cued — so the script does not have to change either way.
 export const NARRATION = [
   {
     id: "intro",
     text: "Every prompt you have ever typed into Copilot Chat is already on your disk. Copilot Prompt Analyzer reads that history and turns it into something you can actually use.",
+  },
+  {
+    // needs a model
+    id: "workingPrompt",
+    text: "This is the point of the whole thing. Pick an area and it reads every request you ever made in it, then writes one reusable prompt: the rules, your conventions, and a do-not list mined from the corrections you had to issue. Save it and it becomes a slash command in chat.",
   },
   {
     id: "areas",
@@ -36,6 +45,16 @@ export const NARRATION = [
   {
     id: "report",
     text: "Prompt quality scores every request you wrote for specificity, context and clarity, then shows the weakest ones so you can see the habit behind them.",
+  },
+  {
+    // needs a model
+    id: "aiReport",
+    text: "The model-written ones go further. Correction patterns clusters every time you had to say no, not like that, into failure modes — each with a rule that prevents it happening again.",
+  },
+  {
+    // needs a model
+    id: "ask",
+    text: "And you can simply ask. Questions are answered from the prompts your filters select, and the answer cites the ones it used.",
   },
   {
     id: "outro",

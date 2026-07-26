@@ -37,6 +37,8 @@ const cues = [];
 let stillIndex = 0;
 let frameIndex = 0;
 let recorder = null;
+// Reference point for wall-clock holds when nothing is being recorded.
+let startedAt = Date.now();
 
 async function shot(page, name) {
   stillIndex += 1;
@@ -52,6 +54,7 @@ async function shot(page, name) {
 
 /** Captures frames on a timer so the video shows real motion, not a slideshow. */
 function startRecording(page) {
+  startedAt = Date.now();
   if (!wantVideo) {
     return;
   }
@@ -93,8 +96,15 @@ async function hold(page, ms) {
  * Waits until the *video* clock reaches a point. Screenshots do not always keep
  * up with the frame rate, so wall time runs ahead of the stitched timeline;
  * counting frames is what keeps the narration aligned with the picture.
+ *
+ * With no recording running there are no frames to count, so this falls back to
+ * wall time — otherwise every hold would spin until its safety cap.
  */
 async function holdUntil(page, videoSeconds) {
+  if (!wantVideo) {
+    await hold(page, Math.max(0, videoSeconds * 1000 - (Date.now() - startedAt)));
+    return;
+  }
   const wallCap = Date.now() + 90000;
   while (frameIndex / FPS < videoSeconds && Date.now() < wallCap) {
     await page.waitForTimeout(150);
@@ -177,6 +187,52 @@ async function tidyWorkbench(page) {
   });
 }
 
+/**
+ * The AI beats need a language model, which means the profile has to be signed
+ * in to Copilot. A scratch profile is not, so they are skipped rather than
+ * filmed as a row of error toasts.
+ */
+async function modelsAvailable(frame) {
+  try {
+    await frame.locator(".model-btn").first().click({ force: true });
+    await frame.page().waitForTimeout(2500);
+    const count = await frame.evaluate(
+      () => document.querySelectorAll("#cca-model option").length
+    );
+    await frame.locator(".model-btn").first().click({ force: true });
+    await frame.page().waitForTimeout(500);
+    // Option one is always the "Auto" placeholder.
+    return count > 1;
+  } catch {
+    return false;
+  }
+}
+
+/** Waits for a streaming document to stop growing. */
+async function waitForStream(frame, selector, timeoutMs = 90000) {
+  const deadline = Date.now() + timeoutMs;
+  let previous = -1;
+  let stableFor = 0;
+  while (Date.now() < deadline) {
+    const length = await frame.evaluate(
+      (sel) => document.querySelector(sel)?.textContent?.length ?? 0,
+      selector
+    );
+    if (length > 0 && length === previous) {
+      stableFor += 1;
+      // Three quiet samples in a row means the model has stopped writing.
+      if (stableFor >= 3) {
+        return true;
+      }
+    } else {
+      stableFor = 0;
+    }
+    previous = length;
+    await frame.page().waitForTimeout(700);
+  }
+  return false;
+}
+
 // `--attach` drives an already-running VS Code (started with
 // --remote-debugging-port) instead of launching a scratch profile. That instance
 // is signed in to Copilot, so the AI beats actually run.
@@ -226,10 +282,36 @@ const summary = await frame.evaluate(() => ({
 }));
 console.log("analyzer:", JSON.stringify(summary));
 
+const withModels = await modelsAvailable(frame);
+console.log(
+  withModels
+    ? "copilot: signed in — filming the AI beats"
+    : "copilot: not signed in — skipping the AI beats"
+);
+
 await beat(page, "intro", async () => {
   await hold(page, 1200);
   await shot(page, "areas");
 });
+
+// The headline feature, and the reason the product exists.
+if (withModels) {
+  await beat(page, "workingPrompt", async () => {
+    await clickIn(frame, ".btn-build");
+    await hold(page, 1500);
+    await waitForStream(frame, ".studio-rendered");
+    await shot(page, "working-prompt");
+    await frame.evaluate(() => {
+      document
+        .querySelector(".studio-body")
+        ?.scrollBy({ top: 420, behavior: "smooth" });
+    });
+    await hold(page, 2000);
+    await shot(page, "working-prompt-scrolled");
+  });
+  await page.keyboard.press("Escape");
+  await hold(page, 800);
+}
 
 // Scroll the grid so several areas pass by.
 await beat(page, "areas", async () => {
@@ -318,6 +400,38 @@ if (await reportCard.count()) {
   });
   await page.keyboard.press("Escape");
   await hold(page, 700);
+}
+
+// A model-written report, so the difference from the local ones is visible.
+const aiReportCard = frame.locator(".insight-card", {
+  hasText: "Correction patterns",
+});
+if (withModels && (await aiReportCard.count())) {
+  await beat(page, "aiReport", async () => {
+    await aiReportCard.first().click({ force: true, timeout: 8000 });
+    await hold(page, 1500);
+    await waitForStream(frame, ".studio-rendered");
+    await shot(page, "ai-report");
+  });
+  await page.keyboard.press("Escape");
+  await hold(page, 700);
+}
+
+// Asking a question of your own history, answered from the filtered prompts.
+if (withModels) {
+  await beat(page, "ask", async () => {
+    await clickIn(frame, '.tabs button:text-is("Ask")');
+    await hold(page, 1200);
+    const box = frame.locator(".ask-input textarea");
+    await box.click({ force: true, timeout: 8000 });
+    await box.type("What did I keep getting wrong about caching?", {
+      delay: 55,
+    });
+    await page.keyboard.press("Enter");
+    await hold(page, 1500);
+    await waitForStream(frame, ".turn-answer");
+    await shot(page, "ask");
+  });
 }
 
 await beat(page, "outro", async () => {

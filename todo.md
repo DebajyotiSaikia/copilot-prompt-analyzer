@@ -30,46 +30,24 @@ the site check on every push and pull request.
 
 ---
 
-## 1. Optional — verified publisher badge
+## 1. Film the AI-backed beats
 
-The publisher's Support and Source links now point at the renamed repository
-(verified against the gallery API), so nothing depends on GitHub's rename
-redirect any more. Only the badge is left.
+**Build working prompt**, **Ask** and the model-written reports are the headline
+features, and the video shows none of them — only the locally computed report.
+The homepage and the Marketplace listing both lead with working prompts, so the
+demo currently sells something it never demonstrates.
 
-- [ ] Put `https://deb0.com` in **Verified domain** on
-      https://marketplace.visualstudio.com/manage/publishers/debajyotisaikia and
-      press **Verify**. It returns a TXT record to add at IONOS, separate from
-      the `prompts` CNAME. Purely cosmetic: it does not gate publishing, and
-      `isDomainVerified` is currently `false`.
+The beats are written. `capture.mjs` probes the model picker on startup, films
+`workingPrompt`, `aiReport` and `ask` when a model is available, and skips them
+with a logged reason when one is not. Their narration is already synthesised, so
+nothing else needs writing.
 
-      Note that publisher edits are only possible through that page — the
-      gallery API rejects them with `InvalidReCaptchaTokenException`, "You can
-      update a publisher directly from the Marketplace website".
+One manual step is left, and it cannot be automated — signing in is an
+interactive OAuth consent flow.
 
-## 2. Not worth doing — Open VSX
-
-Dropped after checking. Open VSX serves VSCodium, Cursor and Windsurf, and
-**neither `github.copilot` nor `github.copilot-chat` is published there** (both
-404 on the Open VSX API). Without Copilot Chat those editors have no
-`chatSessions` history to read and no `vscode.lm` provider, so classification,
-Ask and the four model-written reports cannot run. The extension would install
-and then do essentially nothing.
-
-Revisit only if the analyzer learns to read another assistant's history format.
-
-## 3. Film the four AI-backed beats
-
-**Build working prompt**, **Ask**, and the three model-written reports are the
-headline features and none of them are on camera — the video shows only the
-local report. The homepage and the Marketplace listing both lead with working
-prompts, so the demo is selling something it never shows.
-
-The blocker is narrower than it looked. Copilot Chat is a **built-in** extension
-in current VS Code, so the scratch profile at `%TEMP%\cca-demo-vscode` already
-has it — it is simply signed out.
-
-- [ ] Sign the scratch profile in to Copilot once. It persists in that profile's
-      `user-data`, so every later recording just works:
+- [ ] Sign the recording profile in to Copilot once. Copilot Chat is built in to
+      VS Code, so the profile already has it; it is simply signed out, and
+      `vscode.lm` returns zero models as a result.
 
       ```
       & "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" `
@@ -77,15 +55,13 @@ has it — it is simply signed out.
         --extensions-dir "$env:TEMP\cca-demo-vscode\extensions"
       ```
 
-      Then sign in from the account menu and close the window. **Do not pass
-      `--fresh` to `capture.mjs` afterwards** — it deletes the profile and the
+      Sign in from the account menu, close the window, then run
+      `node demo/capture.mjs --video`. It persists, so this is once only.
+
+      **Never pass `--fresh` afterwards** — that deletes the profile and the
       sign-in with it.
 
-- [ ] Write the beats in `demo/capture.mjs` and their lines in
-      `demo/narration.mjs`. Each AI beat streams, so it needs to wait for
-      completion rather than a fixed hold.
-
-## 4. Things worth not rediscovering
+## 2. Things worth not rediscovering
 
 **Publisher identity.** The Marketplace publisher `DebajyotiSaikia` was created
 under the **Microsoft Account** directory, which is a different principal from
