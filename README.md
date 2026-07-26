@@ -142,3 +142,65 @@ of version control.
 Classification and Q&A send prompt text to a language model through your Copilot
 subscription. Prompt text is truncated to `copilotPromptAnalyzer.maxPromptChars`
 before it is sent; lower that value, or filter first, if a workspace is sensitive.
+
+## Maintaining
+
+```
+cd extension
+npm run package        # typecheck, test, production bundle
+npm test               # node --test, no framework, TypeScript run directly
+node demo/capture.mjs --video
+```
+
+CI runs the typecheck, tests, a production bundle, a trial `vsce package`, the
+secret scan and the site check on every push. Releasing is
+`npx vsce publish --azure-credential --packagePath .\copilot-prompt-analyzer-<version>.vsix`;
+the homepage redeploys itself on any push touching `site/`.
+
+Two scripts guard the repo, and both read `git ls-files` so they only ever check
+what would actually ship:
+
+- `node scripts/secret-scan.mjs` — credentials, tokens, local paths, personal data
+- `node scripts/site-check.mjs` — broken assets, dead anchors, missing alt text
+  and social metadata in `site/`
+
+### Things worth not rediscovering
+
+**Publisher identity.** The Marketplace publisher `DebajyotiSaikia` was created
+under the **Microsoft Account** directory, which is a different principal from
+the same email in the Entra tenant. `az` can never hold the Microsoft Account
+one — ARM refuses the `/consumers` endpoint (`AADSTS9002332`), and both WAM and
+device-code sign-in fail. Azure DevOps exposes only `Default Directory`, so
+tokens minted there carry the Entra principal. CLI publishing works only because
+the Entra guest identity
+`debajyoti.saikia_yahoo.co.in#EXT#@debajyotisaikiayahooco.onmicrosoft.com` was
+added to the publisher's members. Remove it and `vsce publish` fails with an
+`Access Denied` that names a GUID and explains nothing.
+
+**Publisher edits are website-only.** The gallery API rejects them with
+`InvalidReCaptchaTokenException`. So is creating a publisher.
+
+**Extension names are globally unique**, not scoped per publisher.
+`copilot-chat-analyzer` belongs to `wudandong` — an unrelated Copilot call-chain
+visualiser — which is why this ships as `copilot-prompt-analyzer`.
+
+**Never pass `--fresh` to the demo capture.** It deletes the scratch profile at
+`%TEMP%\cca-demo-vscode`, including its Copilot sign-in, and the three
+model-backed beats then silently drop out of the recording. The narration also
+says the product name aloud, so a rename means re-recording rather than editing
+text.
+
+**No TypeScript parameter properties in `src/`.** The tests run through
+`node --test` with type stripping, which cannot transform them
+(`ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`). Write constructors longhand.
+
+**GitHub Pages** cannot serve `/site` from a branch — only `/` or `/docs` — so
+`.github/workflows/pages.yml` uploads the folder as an artifact. When a custom
+domain changes, GitHub keeps serving a cached `NXDOMAIN` and refuses to issue a
+certificate; clearing the domain and re-setting it forces revalidation. Pages
+serves exactly one custom domain, so moving it breaks the old address with no
+redirect.
+
+**Windows PowerShell 5.1 mangles `@vscode/vsce`** — the leading `@` is read as a
+splat, giving "npm error could not determine executable to run". Inside scripts,
+call it through `cmd.exe /c "npx --yes @vscode/vsce ..."`.
