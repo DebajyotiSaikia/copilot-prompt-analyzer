@@ -10,12 +10,30 @@
       name="description"
       content="Group every prompt you have ever sent to GitHub Copilot Chat by topic, then distil each area into one reusable prompt. Runs entirely on your machine."
     />
+    <link rel="canonical" href="https://prompts.deb0.com/" />
+    <meta name="theme-color" content="#1e1b4b" />
+
     <meta property="og:title" content="Copilot Prompt Analyzer" />
     <meta
       property="og:description"
       content="Turn months of scattered Copilot chats into working prompts you can actually reuse."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://prompts.deb0.com/" />
+    <meta
+      property="og:image"
+      content="https://prompts.deb0.com/shot-areas.png"
+    />
+    <meta
+      property="og:image:alt"
+      content="The analyzer grouping Copilot prompts into areas of work inside VS Code."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:image"
+      content="https://prompts.deb0.com/shot-areas.png"
+    />
+
     <link rel="icon" href="icon.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -29,7 +47,11 @@
         <a href="#what">What it does</a>
         <a href="#how">How it works</a>
         <a href="#privacy">Privacy</a>
-        <a class="btn btn-primary" data-marketplace href="#install">Install</a>
+        <a
+          class="btn btn-primary"
+          href="https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer"
+          >Install</a
+        >
       </nav>
     </header>
 
@@ -47,31 +69,33 @@
           area into one reusable prompt.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary btn-lg" data-marketplace href="#install"
+          <a
+            class="btn btn-primary btn-lg"
+            href="https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer"
             >Install from the Marketplace</a
           >
           <a class="btn btn-lg" href="#how">See how it works</a>
         </div>
 
         <figure class="video-frame">
-          <div class="video-missing" id="video-missing">
-            <span class="video-missing-title">Demo</span>
-            <span class="video-missing-body"
-              >Drop <code>demo.mp4</code> beside this page to embed the
-              walkthrough.</span
-            >
-          </div>
           <video
             id="demo"
+            controls
             playsinline
-            muted
-            loop
-            autoplay
             preload="metadata"
             poster="shot-areas.png"
+            aria-label="Narrated walkthrough of Copilot Prompt Analyzer"
           >
             <source src="demo.mp4" type="video/mp4" />
+            <p class="video-fallback">
+              Your browser cannot play this video.
+              <a href="demo.mp4">Download the walkthrough</a> instead.
+            </p>
           </video>
+          <figcaption class="video-caption">
+            96 seconds, narrated. Recorded against the real extension, not a
+            mock-up.
+          </figcaption>
         </figure>
       </section>
 
@@ -199,6 +223,42 @@
         </div>
       </section>
 
+      <section class="shots">
+        <div class="wrap">
+          <div class="shot-grid">
+            <figure class="shot">
+              <img
+                src="shot-insights.png"
+                alt="The Insights tab listing seven reports, three of them marked as computed locally."
+                width="1920"
+                height="1080"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Seven reports. The ones marked <strong>local</strong> never
+                touch a model.
+              </figcaption>
+            </figure>
+
+            <figure class="shot">
+              <img
+                src="shot-report.png"
+                alt="The prompt quality report, scoring requests for specificity, context and clarity."
+                width="1920"
+                height="1080"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Prompt quality scores every request you wrote, then shows the
+                weakest ones.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
       <section id="how" class="how">
         <div class="wrap">
           <h2>How it works</h2>
@@ -286,7 +346,7 @@
           </p>
           <pre
             class="code"
-          ><code>ext install <span data-publisher>&lt;publisher&gt;</span>.copilot-prompt-analyzer</code></pre>
+          ><code>ext install DebajyotiSaikia.copilot-prompt-analyzer</code></pre>
           <p class="install-note">
             Or search <strong>Copilot Prompt Analyzer</strong> in the Extensions
             view.
@@ -311,43 +371,5 @@
         </p>
       </div>
     </footer>
-
-    <script>
-      // Single point of truth for the Marketplace identity. Fill this in once
-      // the publisher exists and every install link and the snippet follow.
-      var PUBLISHER = "DebajyotiSaikia";
-
-      (function () {
-        if (!PUBLISHER) {
-          return;
-        }
-        var url =
-          "https://marketplace.visualstudio.com/items?itemName=" +
-          PUBLISHER +
-          ".copilot-prompt-analyzer";
-        document.querySelectorAll("[data-marketplace]").forEach(function (el) {
-          el.href = url;
-        });
-        document.querySelectorAll("[data-publisher]").forEach(function (el) {
-          el.textContent = PUBLISHER;
-        });
-      })();
-
-      // The demo video is an optional asset; show a placeholder until it exists.
-      (function () {
-        var video = document.getElementById("demo");
-        var missing = document.getElementById("video-missing");
-        if (!video || !missing) {
-          return;
-        }
-        video.addEventListener("loadeddata", function () {
-          missing.hidden = true;
-          video.classList.add("is-ready");
-        });
-        video.addEventListener("error", function () {
-          video.hidden = true;
-        });
-      })();
-    </script>
   </body>
 </html>
