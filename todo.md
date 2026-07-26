@@ -63,11 +63,27 @@ homepage `https://chat-analyzer.deb0.com/`. All of that is wired in and pushed.
 - [x] GitHub repo is public; the README GIF resolves over HTTPS (verified 200)
 - [x] Marketplace publisher created —
       `marketplace.visualstudio.com/manage/publishers/debajyotisaikia`
-- [x] `v0.2.0` tagged and pushed
-- [ ] Create an Azure DevOps PAT with **Marketplace → Manage** scope, then run
-      `npx vsce login DebajyotiSaikia` and type it at the prompt. Never paste it
-      into chat or a file.
-- [ ] `npx vsce publish` from `extension/`
+      (publisherId `4e44f280-…`, website and logo set, domain unverified)
+- [x] Renamed to `copilot-prompt-analyzer` — `copilot-chat-analyzer` is taken by
+      an unrelated extension, `wudandong.copilot-chat-analyzer`, a Copilot
+      call-chain visualiser. Marketplace extension names are globally unique.
+      Demo re-recorded because the voiceover says the product name aloud.
+- [ ] Publish. **Blocked on a Marketplace identity mismatch**, not on the code.
+      `vsce publish --azure-credential` authenticates fine, but the principal the
+      Azure CLI supplies (`a91a1e6b-…`, Entra tenant `2b0a77cc…`, "Default
+      Directory") has no rights on publisher `/DebajyotiSaikia`, which was
+      created while the portal was in the **Microsoft Account** directory.
+      - `az` cannot hold the Microsoft Account identity at all: ARM refuses the
+        `/consumers` endpoint (`AADSTS9002332`). WAM sign-in and device-code
+        sign-in both fail. Structural, not a machine problem.
+      - Azure DevOps lists only `Default Directory`, so a PAT created there
+        carries the same rejected principal, and there is no Microsoft Account
+        directory to create an organisation in.
+      - Resolution: accept the publisher agreement if the publisher does appear
+        under Default Directory, otherwise add the Entra identity to the
+        publisher as **Owner**. Either way `vsce publish --azure-credential`
+        then works with no PAT to store or rotate.
+- [ ] Move the `v0.2.0` tag onto the commit that actually ships
 - [ ] Optionally mirror to Open VSX for VSCodium users
 
 ## 3. Ship the homepage

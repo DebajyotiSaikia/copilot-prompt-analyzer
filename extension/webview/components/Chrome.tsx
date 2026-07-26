@@ -180,11 +180,21 @@ export function Chrome({
           >
             Ask
           </button>
-          <button type="button" className="btn" onClick={onRescan} disabled={busy}>
+          <button
+            type="button"
+            className="btn"
+            onClick={onRescan}
+            disabled={busy}
+          >
             Rescan
           </button>
           {compact ? null : (
-            <button type="button" className="btn" onClick={onExport} disabled={busy}>
+            <button
+              type="button"
+              className="btn"
+              onClick={onExport}
+              disabled={busy}
+            >
               Export
             </button>
           )}
@@ -212,7 +222,9 @@ export function Chrome({
                 onSettingsChange({ modelId: event.target.value || null })
               }
             >
-              <option value="">Auto ({activeModel ?? "resolve on demand"})</option>
+              <option value="">
+                Auto ({activeModel ?? "resolve on demand"})
+              </option>
               {models.map((model) => (
                 <option key={model.id} value={model.id}>
                   {model.name} · {model.vendor} ·{" "}
