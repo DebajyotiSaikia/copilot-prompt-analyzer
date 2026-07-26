@@ -57,14 +57,21 @@ homepage `https://chat-analyzer.deb0.com/`. All of that is wired in and pushed.
 - [x] Demo GIF in `extension/README.md` as an absolute HTTPS URL
       (`raw.githubusercontent.com/.../main/site/demo.gif`) — resolves as soon as
       the repo is public
+- [x] Publisher wired as `DebajyotiSaikia` in `extension/package.json` and
+      `site/index.html`. Extension identity:
+      `DebajyotiSaikia.copilot-chat-analyzer`
 - [ ] **Make the GitHub repo public**, or the README image on the Marketplace
       will 404
-- [ ] Create the Marketplace publisher at `marketplace.visualstudio.com/manage`.
-      Then: set `"publisher"` in `extension/package.json` and `var PUBLISHER` in
-      `site/index.html` — one line each, everything else follows from them.
+- [ ] Create the publisher at `marketplace.visualstudio.com/manage`. There is no
+      API for this — `vsce create-publisher` was removed — so the portal form is
+      the only way. Only **Name** and **ID** are required; use ID
+      `DebajyotiSaikia` exactly, since the package is already built against it.
+      Optional fields worth filling: logo `extension/media/icon.png` (already
+      128×128), company website `https://deb0.com/`, source repository and
+      support both `https://github.com/DebajyotiSaikia/copilot-chat-analyzer`.
 - [ ] Create an Azure DevOps PAT with **Marketplace → Manage** scope, then run
-      `npx vsce login <publisher>` and type it at the prompt. Never paste it into
-      chat or a file.
+      `npx vsce login DebajyotiSaikia` and type it at the prompt. Never paste it
+      into chat or a file.
 - [ ] `git tag v0.2.0`, push the tag, then `npx vsce publish`
 - [ ] Optionally mirror to Open VSX for VSCodium users
 
@@ -76,8 +83,8 @@ homepage `https://chat-analyzer.deb0.com/`. All of that is wired in and pushed.
       Pages; delete it if you serve the folder from somewhere else.
 - [ ] Deploy — for Pages: repo → Settings → Pages → deploy from `main`, folder
       `/site`, then point a `chat-analyzer` CNAME at `debajyotisaikia.github.io`
-- [ ] Set `var PUBLISHER` in `site/index.html` once the publisher exists; it
-      fills every install link and the `ext install` snippet
+- [x] `var PUBLISHER` set in `site/index.html`; it fills every install link and
+      the `ext install` snippet
 
 ## 4. Backlog
 

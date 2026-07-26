@@ -3,7 +3,7 @@
   "displayName": "Copilot Chat Analyzer",
   "description": "Group, explore, and interrogate your GitHub Copilot Chat history by topic area.",
   "version": "0.2.0",
-  "publisher": "local",
+  "publisher": "DebajyotiSaikia",
   "license": "MIT",
   "author": {
     "name": "Debajyoti Saikia",
