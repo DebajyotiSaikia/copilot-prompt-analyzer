@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Copilot Chat Analyzer — turn your chat history into working prompts
+    </title>
+    <meta
+      name="description"
+      content="Group every prompt you have ever sent to GitHub Copilot Chat by topic, then distil each area into one reusable prompt. Runs entirely on your machine."
+    />
+    <meta property="og:title" content="Copilot Chat Analyzer" />
+    <meta
+      property="og:description"
+      content="Turn months of scattered Copilot chats into working prompts you can actually reuse."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Copilot Chat Analyzer</span>
+      </a>
+      <nav>
+        <a href="#what">What it does</a>
+        <a href="#how">How it works</a>
+        <a href="#privacy">Privacy</a>
+        <a class="btn btn-primary" data-marketplace href="#install">Install</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <p class="eyebrow">VS Code extension</p>
+        <h1>
+          You have already written the spec.<br />
+          It is buried in your chat history.
+        </h1>
+        <p class="lede">
+          Every prompt you have sent to GitHub Copilot Chat is sitting on your
+          disk — the requirements, the conventions, and every correction you had
+          to make. This reads all of it, groups it by topic, and distils each
+          area into one reusable prompt.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" data-marketplace href="#install"
+            >Install from the Marketplace</a
+          >
+          <a class="btn btn-lg" href="#how">See how it works</a>
+        </div>
+
+        <figure class="video-frame">
+          <div class="video-missing" id="video-missing">
+            <span class="video-missing-title">Demo</span>
+            <span class="video-missing-body"
+              >Drop <code>demo.mp4</code> beside this page to embed the
+              walkthrough.</span
+            >
+          </div>
+          <video
+            id="demo"
+            playsinline
+            muted
+            loop
+            autoplay
+            preload="metadata"
+            poster="shot-areas.png"
+          >
+            <source src="demo.mp4" type="video/mp4" />
+          </video>
+        </figure>
+      </section>
+
+      <section class="problem">
+        <div class="wrap">
+          <h2>The context you keep re-explaining</h2>
+          <div class="problem-grid">
+            <div>
+              <h3>You repeat yourself</h3>
+              <p>
+                The same preference, explained again in a new session because
+                the last one is gone. The assistant has no memory of the thirty
+                times you asked for the same thing.
+              </p>
+            </div>
+            <div>
+              <h3>You correct the same mistakes</h3>
+              <p>
+                "No, not like that." Those corrections are the most valuable
+                thing you have ever typed, and they evaporate the moment the
+                session closes.
+              </p>
+            </div>
+            <div>
+              <h3>You cannot see the shape of it</h3>
+              <p>
+                Hundreds of prompts across dozens of projects, with no way to
+                ask what you actually spend your time on.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="what" class="features">
+        <div class="wrap">
+          <h2>What it does</h2>
+
+          <div class="feature-grid">
+            <article class="feature feature-wide">
+              <h3>Working prompts, per area</h3>
+              <p>
+                The core idea. Pick an area — auth, database, UI — and it reads
+                every request you ever made in it, then produces one prompt
+                covering the objective, your stack, the concrete requirements,
+                your conventions, a
+                <strong>Do not</strong> list mined from your corrections, and a
+                definition of done.
+              </p>
+              <p>
+                Save it to <code>.github/prompts/</code> and it becomes a
+                <code>/</code> command in chat. Save it to
+                <code>.github/instructions/</code> and it applies automatically.
+              </p>
+            </article>
+
+            <article class="feature">
+              <h3>Grouped by topic</h3>
+              <p>
+                Prompts are classified into areas — UI, API, data, auth,
+                security, infra, testing, performance and more. Not happy with
+                the taxonomy? Describe a different one and it regroups.
+              </p>
+            </article>
+
+            <article class="feature">
+              <h3>Ask your own history</h3>
+              <p>
+                "What did I keep getting wrong about auth?" Answers are grounded
+                in the prompts your filters select, and cite them.
+              </p>
+            </article>
+
+            <article class="feature">
+              <h3>Correction patterns</h3>
+              <p>
+                Where the assistant repeatedly fails you, clustered into failure
+                modes, each with a copy-ready rule that prevents it.
+              </p>
+            </article>
+
+            <article class="feature">
+              <h3>Prompt quality</h3>
+              <p>
+                Specificity, context and actionability scored per prompt, with a
+                monthly trend and the share of turns that carried no information
+                at all. Computed locally.
+              </p>
+            </article>
+
+            <article class="feature">
+              <h3>Repeated questions</h3>
+              <p>
+                Near-duplicate asks across sessions and months. Each cluster is
+                an instruction file you have not written yet.
+              </p>
+            </article>
+
+            <article class="feature">
+              <h3>Paste hygiene</h3>
+              <p>
+                Finds the prompts that are mostly pasted terminal output, tells
+                you what they cost, and what to do instead.
+              </p>
+            </article>
+
+            <article class="feature">
+              <h3>Project specs &amp; decision log</h3>
+              <p>
+                Reconstructs what each project is from the questions you asked
+                while building it, and recovers the architecture decisions you
+                made in chat — including the ones you later reversed.
+              </p>
+            </article>
+
+            <article class="feature">
+              <h3>Global instructions</h3>
+              <p>
+                The rules that hold everywhere, distilled into a
+                <code>copilot-instructions.md</code> that improves every future
+                session whether you remember this tool or not.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="how" class="how">
+        <div class="wrap">
+          <h2>How it works</h2>
+          <ol class="steps">
+            <li>
+              <span class="step-n">1</span>
+              <h3>It reads what is already there</h3>
+              <p>
+                VS Code writes every chat session to disk as JSON. The extension
+                reads those files directly — no setup, no export, no account.
+                Your history is there the moment you open it.
+              </p>
+            </li>
+            <li>
+              <span class="step-n">2</span>
+              <h3>It classifies with your own Copilot</h3>
+              <p>
+                Grouping and synthesis run through the VS Code Language Model
+                API, using the subscription you already pay for. No API key.
+                Results are cached by prompt text, so nothing is re-classified
+                twice.
+              </p>
+            </li>
+            <li>
+              <span class="step-n">3</span>
+              <h3>It gives you something to use tomorrow</h3>
+              <p>
+                Working prompts, instruction files and reports — written into
+                your repo in the formats Copilot already understands.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="privacy" class="privacy">
+        <div class="wrap">
+          <h2>Where your data goes</h2>
+          <div class="privacy-grid">
+            <div class="privacy-good">
+              <h3>Stays on your machine</h3>
+              <ul>
+                <li>Chat history is read from local files, never uploaded.</li>
+                <li>
+                  Classifications and generated documents are stored locally.
+                </li>
+                <li>
+                  Three of the seven reports never leave your machine at all.
+                </li>
+                <li>No telemetry. No analytics. No account.</li>
+              </ul>
+            </div>
+            <div class="privacy-warn">
+              <h3>Worth knowing</h3>
+              <ul>
+                <li>
+                  Classification and synthesis send prompt text to a model
+                  through
+                  <em>your</em> Copilot subscription, under its terms.
+                </li>
+                <li>
+                  Your prompts contain code, paths and anything you pasted into
+                  chat. Filter to a project first if some of it is sensitive.
+                </li>
+                <li>
+                  Prompt text is truncated before it is sent, and you can see
+                  the exact token cost before every request.
+                </li>
+                <li>
+                  Exports are as sensitive as the original chats. Treat them
+                  that way.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="install" class="install">
+        <div class="wrap">
+          <h2>Install</h2>
+          <p class="install-lede">
+            Requires VS Code 1.95 or later and an active GitHub Copilot
+            subscription.
+          </p>
+          <pre
+            class="code"
+          ><code>ext install <span data-publisher>&lt;publisher&gt;</span>.copilot-chat-analyzer</code></pre>
+          <p class="install-note">
+            Or search <strong>Copilot Chat Analyzer</strong> in the Extensions
+            view.
+          </p>
+          <p class="install-after">
+            Then open the analyzer from the activity bar and press
+            <strong>Classify with AI</strong>.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap">
+        <p>
+          Copilot Chat Analyzer — not affiliated with GitHub or Microsoft. MIT
+          licensed. Built by
+          <a href="https://deb0.com/">Debajyoti Saikia</a>.
+          <a href="https://github.com/DebajyotiSaikia/copilot-chat-analyzer"
+            >Source on GitHub</a
+          >.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Single point of truth for the Marketplace identity. Fill this in once
+      // the publisher exists and every install link and the snippet follow.
+      var PUBLISHER = "";
+
+      (function () {
+        if (!PUBLISHER) {
+          return;
+        }
+        var url =
+          "https://marketplace.visualstudio.com/items?itemName=" +
+          PUBLISHER +
+          ".copilot-chat-analyzer";
+        document.querySelectorAll("[data-marketplace]").forEach(function (el) {
+          el.href = url;
+        });
+        document.querySelectorAll("[data-publisher]").forEach(function (el) {
+          el.textContent = PUBLISHER;
+        });
+      })();
+
+      // The demo video is an optional asset; show a placeholder until it exists.
+      (function () {
+        var video = document.getElementById("demo");
+        var missing = document.getElementById("video-missing");
+        if (!video || !missing) {
+          return;
+        }
+        video.addEventListener("loadeddata", function () {
+          missing.hidden = true;
+          video.classList.add("is-ready");
+        });
+        video.addEventListener("error", function () {
+          video.hidden = true;
+        });
+      })();
+    </script>
+  </body>
+</html>

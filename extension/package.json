@@ -1,0 +1,173 @@
+{
+  "name": "copilot-chat-analyzer",
+  "displayName": "Copilot Chat Analyzer",
+  "description": "Group, explore, and interrogate your GitHub Copilot Chat history by topic area.",
+  "version": "0.2.0",
+  "publisher": "local",
+  "license": "MIT",
+  "author": {
+    "name": "Debajyoti Saikia",
+    "url": "https://deb0.com/"
+  },
+  "homepage": "https://chat-analyzer.deb0.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DebajyotiSaikia/copilot-chat-analyzer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DebajyotiSaikia/copilot-chat-analyzer/issues"
+  },
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1e1b4b",
+    "theme": "dark"
+  },
+  "keywords": [
+    "copilot",
+    "chat history",
+    "prompt engineering",
+    "analytics",
+    "instructions"
+  ],
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Other",
+    "Data Science"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "copilotChatAnalyzer",
+          "title": "Copilot Chat Analyzer",
+          "icon": "media/analyzer.svg"
+        }
+      ]
+    },
+    "views": {
+      "copilotChatAnalyzer": [
+        {
+          "id": "copilotChatAnalyzer.view",
+          "name": "Prompt Areas",
+          "type": "webview",
+          "icon": "media/analyzer.svg",
+          "contextualTitle": "Copilot Chat Analyzer"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "copilotChatAnalyzer.open",
+          "when": "view == copilotChatAnalyzer.view",
+          "group": "navigation@1"
+        },
+        {
+          "command": "copilotChatAnalyzer.classify",
+          "when": "view == copilotChatAnalyzer.view",
+          "group": "navigation@2"
+        },
+        {
+          "command": "copilotChatAnalyzer.reindex",
+          "when": "view == copilotChatAnalyzer.view",
+          "group": "navigation@3"
+        },
+        {
+          "command": "copilotChatAnalyzer.exportJson",
+          "when": "view == copilotChatAnalyzer.view",
+          "group": "1_actions"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "copilotChatAnalyzer.open",
+        "title": "Open Analyzer In Editor",
+        "category": "Copilot Chat Analyzer",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "copilotChatAnalyzer.focus",
+        "title": "Show Analyzer Sidebar",
+        "category": "Copilot Chat Analyzer",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "copilotChatAnalyzer.reindex",
+        "title": "Rescan Chat History",
+        "category": "Copilot Chat Analyzer",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "copilotChatAnalyzer.classify",
+        "title": "Classify Prompts With AI",
+        "category": "Copilot Chat Analyzer",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "copilotChatAnalyzer.exportJson",
+        "title": "Export Prompts As JSON",
+        "category": "Copilot Chat Analyzer"
+      },
+      {
+        "command": "copilotChatAnalyzer.toggleDemo",
+        "title": "Toggle Demo Data",
+        "category": "Copilot Chat Analyzer"
+      }
+    ],
+    "configuration": {
+      "title": "Copilot Chat Analyzer",
+      "properties": {
+        "copilotChatAnalyzer.model": {
+          "type": "string",
+          "default": "gpt-4o-mini",
+          "description": "Preferred language model family for classification and Q&A. Falls back to any available Copilot model."
+        },
+        "copilotChatAnalyzer.batchSize": {
+          "type": "number",
+          "default": 20,
+          "minimum": 1,
+          "maximum": 60,
+          "description": "How many prompts to classify per model request."
+        },
+        "copilotChatAnalyzer.maxPromptChars": {
+          "type": "number",
+          "default": 1200,
+          "description": "Prompt text is truncated to this many characters before being sent to the model."
+        },
+        "copilotChatAnalyzer.extraUserDirs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Additional VS Code 'User' directories to scan for chat history."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "package": "npm run typecheck && node esbuild.mjs --production"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/vscode": "^1.95.0",
+    "esbuild": "^0.24.2",
+    "playwright-core": "^1.62.0",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "mermaid": "^11.16.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

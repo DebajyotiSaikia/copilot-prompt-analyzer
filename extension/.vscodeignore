@@ -1,0 +1,13 @@
+.vscode/**
+node_modules/**
+src/**
+webview/**
+demo/**
+esbuild.mjs
+tsconfig.json
+.gitignore
+*.vsix
+media/icon-source.html
+**/*.map
+**/*.ts
+**/*.tsx

@@ -1,0 +1,13 @@
+copilot-chats.db
+copilot-chats.db-wal
+copilot-chats.db-shm
+out/
+__pycache__/
+
+# Demo build artefacts and the narration key — never commit these.
+extension/demo/.azure-speech-key
+extension/demo/voice/
+extension/demo/frames/
+extension/demo/shots/
+extension/demo/*.mp4
+extension/demo/*.gif

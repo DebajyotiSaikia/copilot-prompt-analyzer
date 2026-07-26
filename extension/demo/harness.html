@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Copilot Chat Analyzer — demo harness</title>
+    <link rel="stylesheet" href="../dist/webview.css" />
+    <style>
+      /* Approximate VS Code's dark theme variables so the harness looks real. */
+      :root {
+        --vscode-editor-background: #1f1f1f;
+        --vscode-editor-foreground: #cccccc;
+        --vscode-font-family: "Segoe WPC", "Segoe UI", sans-serif;
+        --vscode-editor-font-family: Consolas, "Courier New", monospace;
+        --vscode-textLink-foreground: #4daafc;
+        --vscode-button-background: #0078d4;
+        --vscode-button-foreground: #ffffff;
+        --vscode-button-hoverBackground: #026ec1;
+        --vscode-input-background: #313131;
+        --vscode-input-foreground: #cccccc;
+        --vscode-input-border: #3c3c3c;
+        --vscode-dropdown-background: #313131;
+        --vscode-dropdown-foreground: #cccccc;
+        --vscode-dropdown-border: #3c3c3c;
+        --vscode-focusBorder: #0078d4;
+        --vscode-editorWarning-foreground: #cca700;
+        --vscode-editorError-foreground: #f14c4c;
+      }
+    </style>
+  </head>
+  <body
+    data-host="panel"
+    data-nonce="demo"
+    data-mermaid-uri="../dist/mermaid.js"
+    class="vscode-dark"
+  >
+    <div id="root"></div>
+
+    <script src="./snapshot.js"></script>
+    <script>
+      // Stands in for the extension host: answers `ready` with the demo snapshot
+      // and fakes the streaming operations so the UI can be driven offline.
+      (function () {
+        const listeners = [];
+        const post = (message) =>
+          window.dispatchEvent(new MessageEvent("message", { data: message }));
+
+        const snapshot = window.__SNAPSHOT;
+
+        function streamMarkdown(startMsg, chunkMsg, endMsg, text, key, done) {
+          post({ type: startMsg, ...key });
+          const parts = text.match(/[\s\S]{1,40}/g) || [];
+          let i = 0;
+          const tick = () => {
+            if (i >= parts.length) {
+              post({ type: endMsg, ...key });
+              if (done) done();
+              return;
+            }
+            post({ type: chunkMsg, ...key, text: parts[i++] });
+            setTimeout(tick, 16);
+          };
+          tick();
+        }
+
+        window.acquireVsCodeApi = function () {
+          return {
+            getState: () => undefined,
+            setState: () => undefined,
+            postMessage(message) {
+              listeners.push(message);
+              switch (message.type) {
+                case "ready":
+                case "rescan":
+                  post({ type: "snapshot", snapshot });
+                  break;
+                case "estimateContext":
+                  post({
+                    type: "contextEstimate",
+                    estimateId: message.estimateId,
+                    tokens: 11840,
+                    maxTokens: 200000,
+                    budgetTokens: 110000,
+                    sampled: message.promptIds.length,
+                    total: message.promptIds.length,
+                  });
+                  break;
+                case "generatePrompt":
+                  streamMarkdown(
+                    "promptStart",
+                    "promptChunk",
+                    "promptEnd",
+                    window.__DEMO_PROMPT,
+                    { areaId: message.areaId },
+                    () => {
+                      snapshot.generated[message.areaId] = {
+                        areaId: message.areaId,
+                        areaLabel: message.areaLabel,
+                        markdown: window.__DEMO_PROMPT,
+                        generatedAt: Date.now(),
+                        sourceCount: message.promptIds.length,
+                        sampledCount: message.promptIds.length,
+                        extraInstruction: null,
+                      };
+                      post({ type: "snapshot", snapshot });
+                    }
+                  );
+                  break;
+                case "buildReport":
+                  streamMarkdown(
+                    "reportStart",
+                    "reportChunk",
+                    "reportEnd",
+                    window.__DEMO_REPORT,
+                    { reportId: message.reportId },
+                    () => {
+                      snapshot.reports[message.reportId] = {
+                        id: message.reportId,
+                        title: "Report",
+                        markdown: window.__DEMO_REPORT,
+                        generatedAt: Date.now(),
+                        meta: message.promptIds.length + " prompts",
+                        suggestedPath: "docs/report.md",
+                        modelName: "Claude Opus 4.8",
+                      };
+                      post({ type: "snapshot", snapshot });
+                    }
+                  );
+                  break;
+                case "ask":
+                case "rewritePrompt":
+                  streamMarkdown(
+                    "answerStart",
+                    "answerChunk",
+                    "answerEnd",
+                    window.__DEMO_ANSWER,
+                    { requestId: message.requestId }
+                  );
+                  break;
+                default:
+                  break;
+              }
+            },
+          };
+        };
+        window.__posted = listeners;
+      })();
+    </script>
+    <script src="../dist/webview.js"></script>
+  </body>
+</html>
