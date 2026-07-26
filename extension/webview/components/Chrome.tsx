@@ -31,6 +31,7 @@ interface Props {
   onReclassify: () => void;
   onExport: () => void;
   onOpenInEditor: () => void;
+  onOpenDashboard: () => void;
   askOpen: boolean;
   onToggleAsk: () => void;
 }
@@ -101,6 +102,7 @@ export function Chrome({
   onReclassify,
   onExport,
   onOpenInEditor,
+  onOpenDashboard,
   askOpen,
   onToggleAsk,
 }: Props): JSX.Element {
@@ -198,6 +200,14 @@ export function Chrome({
               Export
             </button>
           )}
+          <button
+            type="button"
+            className="btn"
+            onClick={onOpenDashboard}
+            title="Open the visual dashboard in its own editor tab"
+          >
+            Dashboard
+          </button>
           {showOpenInEditor ? (
             <button
               type="button"

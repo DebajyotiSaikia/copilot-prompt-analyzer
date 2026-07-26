@@ -1154,6 +1154,9 @@ export class AnalyzerService {
       case "openInEditor":
         await vscode.commands.executeCommand("copilotPromptAnalyzer.open");
         return;
+      case "openDashboard":
+        await vscode.commands.executeCommand("copilotPromptAnalyzer.dashboard");
+        return;
       case "copy":
         await vscode.env.clipboard.writeText(message.text);
         this.toast("info", "Copied to clipboard.");

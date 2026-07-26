@@ -212,6 +212,7 @@ export type InboundMessage =
   | { type: "savePrompt"; areaId: string; format: SaveFormat }
   | { type: "clearPrompt"; areaId: string }
   | { type: "setSettings"; settings: Partial<AnalyzerSettings> }
+  | { type: "openDashboard" }
   | { type: "refreshModels" }
   | { type: "probeCapabilities"; modelId: string | null }
   | { type: "buildReport"; reportId: ReportId; promptIds: string[] }

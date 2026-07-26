@@ -18,12 +18,18 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("copilotPromptAnalyzer.open", () => {
       AnalyzerPanel.show(context, service);
     }),
+    vscode.commands.registerCommand("copilotPromptAnalyzer.dashboard", () => {
+      AnalyzerPanel.show(context, service, "dashboard");
+    }),
     vscode.commands.registerCommand("copilotPromptAnalyzer.focus", async () => {
       await vscode.commands.executeCommand(`${AnalyzerSidebar.viewId}.focus`);
     }),
-    vscode.commands.registerCommand("copilotPromptAnalyzer.reindex", async () => {
-      await service.rescan();
-    }),
+    vscode.commands.registerCommand(
+      "copilotPromptAnalyzer.reindex",
+      async () => {
+        await service.rescan();
+      }
+    ),
     vscode.commands.registerCommand(
       "copilotPromptAnalyzer.classify",
       async () => {

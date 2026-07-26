@@ -2,7 +2,7 @@
   "name": "copilot-prompt-analyzer",
   "displayName": "Copilot Prompt Analyzer",
   "description": "Group, explore, and interrogate your GitHub Copilot Chat history by topic area.",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "publisher": "DebajyotiSaikia",
   "license": "MIT",
   "author": {
@@ -62,19 +62,24 @@
     "menus": {
       "view/title": [
         {
-          "command": "copilotPromptAnalyzer.open",
+          "command": "copilotPromptAnalyzer.dashboard",
           "when": "view == copilotPromptAnalyzer.view",
           "group": "navigation@1"
         },
         {
-          "command": "copilotPromptAnalyzer.classify",
+          "command": "copilotPromptAnalyzer.open",
           "when": "view == copilotPromptAnalyzer.view",
           "group": "navigation@2"
         },
         {
-          "command": "copilotPromptAnalyzer.reindex",
+          "command": "copilotPromptAnalyzer.classify",
           "when": "view == copilotPromptAnalyzer.view",
           "group": "navigation@3"
+        },
+        {
+          "command": "copilotPromptAnalyzer.reindex",
+          "when": "view == copilotPromptAnalyzer.view",
+          "group": "navigation@4"
         },
         {
           "command": "copilotPromptAnalyzer.exportJson",
@@ -89,6 +94,12 @@
         "title": "Open Analyzer In Editor",
         "category": "Copilot Prompt Analyzer",
         "icon": "$(link-external)"
+      },
+      {
+        "command": "copilotPromptAnalyzer.dashboard",
+        "title": "Open Dashboard",
+        "category": "Copilot Prompt Analyzer",
+        "icon": "$(pulse)"
       },
       {
         "command": "copilotPromptAnalyzer.focus",

@@ -87,6 +87,25 @@ function stopRecording() {
   }
 }
 
+/**
+ * Opening a new webview panel while the recorder is screenshotting saturates the
+ * CDP connection and the command palette never appears. Frame capture pauses for
+ * the duration; the missing frames read as a natural cut.
+ */
+async function withRecordingPaused(page, run) {
+  const wasRecording = recorder !== null;
+  if (wasRecording) {
+    stopRecording();
+  }
+  try {
+    await run();
+  } finally {
+    if (wasRecording) {
+      startRecording(page);
+    }
+  }
+}
+
 /** Holds a beat on screen so it is readable in the video. */
 async function hold(page, ms) {
   await page.waitForTimeout(ms);
@@ -143,18 +162,22 @@ async function clickIn(frame, selector) {
 /**
  * The analyzer renders in a webview, which is a nested iframe. Both the sidebar
  * view and the editor panel match, so the widest one wins — that is the panel.
+ * `marker` selects which page to find, since the dashboard is its own frame.
  */
-async function analyzerFrame(page, timeoutMs = 25000) {
+async function analyzerFrame(page, timeoutMs = 25000, marker = ".area-card") {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     let best = null;
     let bestWidth = 0;
     for (const frame of page.frames()) {
       try {
-        const found = await frame.evaluate(() => ({
-          cards: document.querySelectorAll(".area-card").length,
-          width: document.body.clientWidth,
-        }));
+        const found = await frame.evaluate(
+          (selector) => ({
+            cards: document.querySelectorAll(selector).length,
+            width: document.body.clientWidth,
+          }),
+          marker
+        );
         if (found.cards > 0 && found.width > bestWidth) {
           best = frame;
           bestWidth = found.width;
@@ -169,6 +192,23 @@ async function analyzerFrame(page, timeoutMs = 25000) {
     await page.waitForTimeout(400);
   }
   return null;
+}
+
+/**
+ * The chat pane reopens itself whenever a webview panel is created, and by the
+ * dashboard beats the palette entry alone no longer sticks. Verified against the
+ * DOM and retried, because a third of the frame is at stake.
+ */
+async function closeAuxBar(page) {
+  const visible = () =>
+    page.evaluate(() => {
+      const bar = document.querySelector(".part.auxiliarybar");
+      return Boolean(bar) && getComputedStyle(bar).visibility !== "hidden";
+    });
+  for (let attempt = 0; attempt < 3 && (await visible()); attempt++) {
+    await runCommand(page, "View: Toggle Secondary Side Bar");
+    await page.waitForTimeout(700);
+  }
 }
 
 /**
@@ -445,11 +485,56 @@ if (withModels) {
   });
 }
 
+// The dashboard is a separate editor tab, so it gets its own webview frame.
+// The side bars close for these beats: charts need the width more than the
+// area list does.
+await withRecordingPaused(page, async () => {
+  await runCommand(page, "Copilot Prompt Analyzer: Open Dashboard");
+  await hold(page, 3500);
+  await runCommand(page, "View: Close Primary Side Bar");
+  await hold(page, 800);
+  // Closing the chat pane goes last: opening the dashboard brings it back.
+  await closeAuxBar(page);
+  await hold(page, 800);
+  await tidyWorkbench(page);
+});
+
+const dash = await analyzerFrame(page, 20000, ".chart-card");
+if (dash) {
+  await beat(page, "dashboard", async () => {
+    await hold(page, 1500);
+    await shot(page, "dashboard");
+    await dash.evaluate(() => {
+      document
+        .querySelector(".dashboard-main")
+        ?.scrollBy({ top: 700, behavior: "smooth" });
+    });
+    await hold(page, 1800);
+    await shot(page, "dashboard-trend");
+  });
+
+  await beat(page, "dashboardScroll", async () => {
+    for (let i = 0; i < 4; i++) {
+      await dash.evaluate(() => {
+        document
+          .querySelector(".dashboard-main")
+          ?.scrollBy({ top: 900, behavior: "smooth" });
+      });
+      await hold(page, 1300);
+    }
+    await shot(page, "dashboard-lower");
+  });
+}
+
 await beat(page, "outro", async () => {
+  // Come back to the analyzer tab to close on the areas grid.
+  await withRecordingPaused(page, async () => {
+    await runCommand(page, "Copilot Prompt Analyzer: Open Analyzer In Editor");
+    await hold(page, 1500);
+  });
   await clickIn(frame, '.tabs button:text-is("Areas")');
   await hold(page, 1200);
 });
-
 // Leave a moment of picture after the last word so nothing is clipped.
 const lastCue = cues.reduce((max, cue) => Math.max(max, cue.ends ?? 0), 0);
 await holdUntil(page, lastCue + 1.5);

@@ -2,6 +2,9 @@ import * as vscode from "vscode";
 
 export type WebviewHost = "panel" | "sidebar";
 
+/** Which screen the bundle should mount. The dashboard is its own full page. */
+export type WebviewPage = "analyzer" | "dashboard";
+
 function nonce(): string {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -25,7 +28,8 @@ export function webviewOptions(
 export function renderWebviewHtml(
   webview: vscode.Webview,
   extensionUri: vscode.Uri,
-  host: WebviewHost
+  host: WebviewHost,
+  page: WebviewPage = "analyzer"
 ): string {
   const asset = (file: string): vscode.Uri =>
     webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "dist", file));
@@ -44,7 +48,7 @@ export function renderWebviewHtml(
     <link rel="stylesheet" href="${asset("webview.css")}" />
     <title>Copilot Prompt Analyzer</title>
   </head>
-  <body data-host="${host}" data-nonce="${key}" data-mermaid-uri="${asset("mermaid.js")}">
+  <body data-host="${host}" data-page="${page}" data-nonce="${key}" data-mermaid-uri="${asset("mermaid.js")}">
     <div id="root"></div>
     <script nonce="${key}" src="${asset("webview.js")}"></script>
   </body>

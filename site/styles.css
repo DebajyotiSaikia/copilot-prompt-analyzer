@@ -263,6 +263,11 @@ a {
   background: var(--bg-2);
 }
 
+/* The dashboard is a dense page; it needs the full row to be legible. */
+.shot-wide {
+  grid-column: 1 / -1;
+}
+
 /* The screenshots are 1080p; width/height are declared so nothing reflows. */
 .shot img {
   display: block;

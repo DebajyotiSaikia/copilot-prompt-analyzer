@@ -1,5 +1,30 @@
 # Change Log
 
+## 0.3.0
+
+### Added
+
+- **A dashboard.** A new editor tab — opened from the **Dashboard** button beside
+  **Expand**, or `Copilot Prompt Analyzer: Open Dashboard` — with twenty-one
+  visualisations over whatever your filters currently select. Every number is
+  computed on your machine, so it is instant and works signed out.
+
+  Leading with the four that change what you do next: **correction rate over
+  time by area**, because every spike is an instruction file you have not
+  written; **where the turns went**, splitting useful requests from steering,
+  repeats and pasted output; **prompt quality over time**, the only chart that
+  measures you rather than the tool; and an **effort treemap** of where your
+  requests actually land.
+
+  Then how you work — activity heatmap, models and modes over time, response
+  time, session length and duration, tool usage — and finally the exploratory
+  set: file hotspots, topic drift, length against quality, tool calls against
+  reply length, a project timeline, estimated token spend, slash commands and
+  repeated questions.
+
+- Charts are hand-drawn SVG. There is no charting library, so they inherit the
+  editor theme, stay crisp at any zoom, and add nothing to the download.
+
 ## 0.2.3
 
 ### Changed

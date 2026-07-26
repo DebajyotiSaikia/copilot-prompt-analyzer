@@ -76,7 +76,7 @@ export function prepare({ fresh = false } = {}) {
     "utf8"
   );
 
-  const vsix = join(extensionDir, "copilot-prompt-analyzer-0.2.3.vsix");
+  const vsix = join(extensionDir, "copilot-prompt-analyzer-0.3.0.vsix");
   if (!existsSync(vsix)) {
     throw new Error(`VSIX not found: ${vsix}. Run vsce package first.`);
   }

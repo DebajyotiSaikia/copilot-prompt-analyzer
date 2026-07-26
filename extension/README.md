@@ -48,6 +48,31 @@ Save it and it becomes something you use tomorrow:
 | `.github/instructions/<area>.instructions.md` | Applied automatically to matching files |
 | Anywhere via **Save as…**                     | Plain markdown                          |
 
+## The dashboard
+
+Press **Dashboard** — next to **Expand**, or run
+`Copilot Prompt Analyzer: Open Dashboard` — and twenty-one visualisations open in
+their own editor tab, scoped to whatever your filters select. Every number is
+computed locally, so it is instant, costs nothing, and works signed out.
+
+Four of them are the point:
+
+| Chart                         | Answers                                                                           |
+| ----------------------------- | --------------------------------------------------------------------------------- |
+| **Correction rate over time** | Where the assistant keeps failing you. Every spike is a missing instruction file  |
+| **Where the turns went**      | How much of your history was steering, repeats and pasted output rather than work |
+| **Prompt quality over time**  | Whether _you_ are getting better at asking                                        |
+| **Effort treemap**            | Where your requests actually land, which is rarely where you think                |
+
+Then the operational set — activity heatmap, models and modes over time, response
+time, session length and duration, tool usage — and the exploratory one: file
+hotspots, topic drift, prompt length against quality, tool calls against reply
+length, a project timeline, estimated token spend, slash commands, and the
+questions you asked twice.
+
+Charts are hand-drawn SVG, so they take the editor's theme and add nothing to the
+download.
+
 ## Everything else
 
 **Grouped by topic.** Prompts are classified into areas — UI, API, data, auth,

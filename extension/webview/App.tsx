@@ -12,6 +12,7 @@ import { onMessage, post } from "./bridge";
 import { AreasView } from "./components/AreasView";
 import { AskPanel, type Turn } from "./components/AskPanel";
 import { Chrome } from "./components/Chrome";
+import { DashboardView } from "./components/DashboardView";
 import { DetailDrawer } from "./components/DetailDrawer";
 import { DocumentModal } from "./components/DocumentModal";
 import { Filters } from "./components/Filters";
@@ -62,6 +63,10 @@ const EMPTY_SNAPSHOT: Snapshot = {
 };
 
 const HOST = document.body.dataset.host === "sidebar" ? "sidebar" : "panel";
+// The dashboard is a separate editor tab with its own bundle mount, not a tab
+// inside the analyzer, so both can be open at once.
+const PAGE =
+  document.body.dataset.page === "dashboard" ? "dashboard" : "analyzer";
 const COMPACT_BREAKPOINT = 820;
 
 /** The sidebar is always compact; the editor panel collapses when narrow. */
@@ -96,7 +101,10 @@ function countActiveFilters(filter: Filter): number {
   );
 }
 
-function describeScope(filter: Filter, taxonomyLabels: Map<string, string>): string {
+function describeScope(
+  filter: Filter,
+  taxonomyLabels: Map<string, string>
+): string {
   const parts: string[] = [];
   if (filter.query) {
     parts.push(`matching “${filter.query}”`);
@@ -140,8 +148,12 @@ export function App(): JSX.Element {
   const [studioExtra, setStudioExtra] = React.useState("");
   // Portable is the default: a prompt welded to one repository cannot be reused.
   const [promptMode, setPromptMode] = React.useState<PromptMode>("portable");
-  const [streamedPrompts, setStreamedPrompts] = React.useState<Record<string, string>>({});
-  const [generatingArea, setGeneratingArea] = React.useState<string | null>(null);
+  const [streamedPrompts, setStreamedPrompts] = React.useState<
+    Record<string, string>
+  >({});
+  const [generatingArea, setGeneratingArea] = React.useState<string | null>(
+    null
+  );
 
   const [openReport, setOpenReport] = React.useState<ReportId | null>(null);
   const [streamedReports, setStreamedReports] = React.useState<
@@ -195,7 +207,10 @@ export function App(): JSX.Element {
           break;
         case "promptStart":
           setGeneratingArea(message.areaId);
-          setStreamedPrompts((current) => ({ ...current, [message.areaId]: "" }));
+          setStreamedPrompts((current) => ({
+            ...current,
+            [message.areaId]: "",
+          }));
           break;
         case "promptChunk":
           setStreamedPrompts((current) => ({
@@ -208,12 +223,16 @@ export function App(): JSX.Element {
           break;
         case "reportStart":
           setBusyReport(message.reportId);
-          setStreamedReports((current) => ({ ...current, [message.reportId]: "" }));
+          setStreamedReports((current) => ({
+            ...current,
+            [message.reportId]: "",
+          }));
           break;
         case "reportChunk":
           setStreamedReports((current) => ({
             ...current,
-            [message.reportId]: (current[message.reportId] ?? "") + message.text,
+            [message.reportId]:
+              (current[message.reportId] ?? "") + message.text,
           }));
           break;
         case "reportEnd":
@@ -267,7 +286,10 @@ export function App(): JSX.Element {
     () => applyFilter(snapshot.prompts, snapshot.classifications, filter),
     [snapshot, filter]
   );
-  const facets = React.useMemo(() => buildFacets(snapshot.prompts), [snapshot.prompts]);
+  const facets = React.useMemo(
+    () => buildFacets(snapshot.prompts),
+    [snapshot.prompts]
+  );
   const buckets = React.useMemo(
     () => groupByArea(filtered, snapshot.classifications, snapshot.taxonomy),
     [filtered, snapshot.classifications, snapshot.taxonomy]
@@ -477,6 +499,49 @@ export function App(): JSX.Element {
       : (storedReport?.markdown ?? streamedReports[openReport] ?? "")
     : "";
 
+  // The dashboard is its own page: filters still apply, but none of the
+  // analyzer's tabs, drawers or studios belong on it.
+  if (PAGE === "dashboard") {
+    // The token estimate uses whatever the active model measured, falling back
+    // to the usual four characters per token.
+    const activeId = snapshot.settings.modelId ?? snapshot.activeModelId ?? "";
+    const charsPerToken = snapshot.capabilities[activeId]?.charsPerToken || 4;
+
+    return (
+      <div className="app is-dashboard">
+        <Filters
+          filter={filter}
+          facets={facets}
+          buckets={buckets}
+          taxonomy={snapshot.taxonomy}
+          resultCount={filtered.length}
+          totalCount={snapshot.prompts.length}
+          onChange={setFilter}
+          onRegroup={(instruction) => post({ type: "regroup", instruction })}
+          onResetTaxonomy={() => post({ type: "resetTaxonomy" })}
+          busy={busy.busy}
+        />
+        <main className="dashboard-main">
+          <DashboardView
+            prompts={filtered}
+            sessions={snapshot.sessions}
+            classifications={snapshot.classifications}
+            areas={snapshot.taxonomy.areas}
+            charsPerToken={charsPerToken}
+            scopeLabel={scopeLabel}
+          />
+        </main>
+        <div className="toasts">
+          {toasts.map((toast) => (
+            <div key={toast.id} className={`toast toast-${toast.level}`}>
+              {toast.message}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={[
@@ -495,6 +560,7 @@ export function App(): JSX.Element {
         busy={busy.busy}
         compact={compact}
         showOpenInEditor={HOST === "sidebar"}
+        onOpenDashboard={() => post({ type: "openDashboard" })}
         models={snapshot.models}
         settings={snapshot.settings}
         capabilities={snapshot.capabilities}
@@ -506,7 +572,10 @@ export function App(): JSX.Element {
         onSettingsChange={(settings) => post({ type: "setSettings", settings })}
         onRefreshModels={() => post({ type: "refreshModels" })}
         onProbe={() =>
-          post({ type: "probeCapabilities", modelId: snapshot.settings.modelId })
+          post({
+            type: "probeCapabilities",
+            modelId: snapshot.settings.modelId,
+          })
         }
         onRescan={() => post({ type: "rescan" })}
         onClassify={() => post({ type: "classify", force: false })}
@@ -534,8 +603,8 @@ export function App(): JSX.Element {
       {snapshot.failures.length > 0 ? (
         <details className="failures">
           <summary>
-            {snapshot.failures.length.toLocaleString()} session file(s) could not be
-            read and were skipped
+            {snapshot.failures.length.toLocaleString()} session file(s) could
+            not be read and were skipped
           </summary>
           <ul>
             {snapshot.failures.slice(0, 40).map((name) => (
@@ -569,7 +638,9 @@ export function App(): JSX.Element {
             <details className="filters-drawer">
               <summary>
                 Filters
-                {activeFilters > 0 ? <span className="badge">{activeFilters}</span> : null}
+                {activeFilters > 0 ? (
+                  <span className="badge">{activeFilters}</span>
+                ) : null}
                 <span className="filters-summary">
                   {filtered.length.toLocaleString()} of{" "}
                   {snapshot.prompts.length.toLocaleString()}
@@ -645,7 +716,9 @@ export function App(): JSX.Element {
             areaColor={areaColors.get(selectedAreaId) ?? UNCLASSIFIED.color}
             onClose={() => setSelected(null)}
             onCopy={(text) => post({ type: "copy", text })}
-            onOpenSession={(sessionId) => post({ type: "openSession", sessionId })}
+            onOpenSession={(sessionId) =>
+              post({ type: "openSession", sessionId })
+            }
             onImprove={() => rewrite(selected)}
           />
         ) : null}
@@ -732,32 +805,34 @@ export function App(): JSX.Element {
             {
               label: "Save .prompt.md",
               format: "prompt",
-              title: "Save to .github/prompts/ so it becomes a / command in chat",
+              title:
+                "Save to .github/prompts/ so it becomes a / command in chat",
             },
             {
               label: ".instructions.md",
               format: "instructions",
-              title: "Save to .github/instructions/ so it is applied automatically",
+              title:
+                "Save to .github/instructions/ so it is applied automatically",
             },
             { label: "Save as…", format: "markdown" },
           ]}
           emptyState={
             <>
               <p>
-                This distils every request you made in this area into one reusable
-                prompt — the rules, the conventions, the corrections you had to
-                make, and a definition of done.
+                This distils every request you made in this area into one
+                reusable prompt — the rules, the conventions, the corrections
+                you had to make, and a definition of done.
               </p>
               <p>
                 <strong>Portable</strong> strips out project names so the result
                 applies to any repository, including one you have not started.{" "}
-                <strong>Project-anchored</strong> keeps the stack and file layout
-                as well.
+                <strong>Project-anchored</strong> keeps the stack and file
+                layout as well.
               </p>
               <p className="hint">
                 Filters apply: only the{" "}
-                {(studioBucket?.prompts.length ?? 0).toLocaleString()} request(s)
-                currently selected are used.
+                {(studioBucket?.prompts.length ?? 0).toLocaleString()}{" "}
+                request(s) currently selected are used.
               </p>
             </>
           }
@@ -770,7 +845,9 @@ export function App(): JSX.Element {
           }}
           onCancel={() => post({ type: "cancelGenerate" })}
           onCopy={(text) => post({ type: "copy", text })}
-          onSave={(format) => post({ type: "savePrompt", areaId: studioArea, format })}
+          onSave={(format) =>
+            post({ type: "savePrompt", areaId: studioArea, format })
+          }
           onClear={() => {
             post({ type: "clearPrompt", areaId: studioArea });
             setStreamedPrompts((current) => {

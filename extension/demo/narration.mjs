@@ -19,6 +19,14 @@ export const NARRATION = [
     text: "Your prompts are grouped into areas of work. Each card shows how many requests landed there, which projects they came from, and how recently you touched it.",
   },
   {
+    id: "dashboard",
+    text: "The dashboard opens in its own tab. Correction rate over time, so you can see where the assistant keeps failing you. How many of your turns carried no information at all. Whether your prompts are getting better. And where your effort actually goes. All of it computed on your machine, in an instant, with no model involved.",
+  },
+  {
+    id: "dashboardScroll",
+    text: "Below that: when you work, which models you ran, how long answers took, which tools the agent reaches for, the files you drag in most, and the questions you have asked more than once.",
+  },
+  {
     id: "model",
     text: "You choose the model. The reasoning levels and context window are queried from the provider, not hard coded, so the list always matches what your account can actually run.",
   },
