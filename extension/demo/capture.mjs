@@ -203,6 +203,11 @@ await hold(page, 2500);
 // Put the extension's own view in the side bar rather than the file explorer.
 await runCommand(page, "Copilot Chat Analyzer: Show Analyzer Sidebar");
 await hold(page, 2000);
+
+// Opening the analyzer brings the chat pane back with it, so close it again now
+// that the layout has settled. The demo is about the analyzer, not the chat.
+await runCommand(page, "View: Close Secondary Side Bar");
+await hold(page, 1000);
 await tidyWorkbench(page);
 
 startRecording(page);

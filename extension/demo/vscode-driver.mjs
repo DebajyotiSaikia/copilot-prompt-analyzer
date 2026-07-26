@@ -31,7 +31,8 @@ const codeCli = join(
 const scratch = join(process.env.TEMP, "cca-demo-vscode");
 const userDataDir = join(scratch, "user-data");
 const extensionsDir = join(scratch, "extensions");
-const workspaceDir = join(scratch, "workspace");
+// The folder name is the window title on camera, so make it look like a project.
+const workspaceDir = join(scratch, "storefront");
 
 export function prepare({ fresh = false } = {}) {
   if (fresh) {
