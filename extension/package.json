@@ -2,7 +2,7 @@
   "name": "copilot-prompt-analyzer",
   "displayName": "Copilot Prompt Analyzer",
   "description": "Group, explore, and interrogate your GitHub Copilot Chat history by topic area.",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "publisher": "DebajyotiSaikia",
   "license": "MIT",
   "author": {

@@ -6,9 +6,9 @@ Read-only: it never writes to VS Code's own storage.
 
 Two pieces that share one data source:
 
-| Part                                                              | Use it for                                                                     |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [extension/](extension) — VS Code extension                       | The dashboard: AI grouping, filtering, and asking questions about your history |
+| Part                                                                  | Use it for                                                                     |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [extension/](extension) — VS Code extension                           | The dashboard: AI grouping, filtering, and asking questions about your history |
 | [copilot_prompt_analyzer.py](copilot_prompt_analyzer.py) — Python CLI | Headless indexing, SQL queries, scripted exports                               |
 
 The extension is the product. The CLI is there when you want raw SQL over the
@@ -47,7 +47,7 @@ VS Code writes each chat panel session to a JSON file:
 | Path                                                  | Contains                                  |
 | ----------------------------------------------------- | ----------------------------------------- |
 | `<user>/workspaceStorage/<hash>/chatSessions/*.json`  | sessions from before Feb 2026             |
-| `<user>/workspaceStorage/<hash>/chatSessions/*.jsonl` | sessions after Feb 2026 (append-only log)  |
+| `<user>/workspaceStorage/<hash>/chatSessions/*.jsonl` | sessions after Feb 2026 (append-only log) |
 | `<user>/globalStorage/emptyWindowChatSessions/*`      | sessions from windows with no folder open |
 
 `<user>` is:

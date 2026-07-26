@@ -1,5 +1,23 @@
 # Change Log
 
+## 0.2.3
+
+### Changed
+
+- The markdown table helpers were being rebuilt on every render call; they are
+  now module-level.
+- `ScanCache` and the session builder no longer use TypeScript parameter
+  properties, so both modules run directly under `node --test` with type
+  stripping and can be tested without a build step.
+
+### Added
+
+- A test suite — 47 tests over the JSONL patch replay and byte-offset resume,
+  the scan cache, the steering and correction detection, and the markdown
+  renderer. No test framework and no new dependencies.
+- CI runs the typecheck, the tests, a production bundle, a trial package, a
+  secret scan and a homepage check on every push.
+
 ## 0.2.2
 
 ### Changed
