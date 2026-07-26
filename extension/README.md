@@ -10,7 +10,7 @@ reusable prompt you can drop straight into `.github/prompts/`.
 Runs on your machine, through the Copilot subscription you already have. No API
 key, no account, no telemetry.
 
-![Copilot Prompt Analyzer](https://raw.githubusercontent.com/DebajyotiSaikia/copilot-chat-analyzer/main/site/demo.gif)
+![Copilot Prompt Analyzer](https://raw.githubusercontent.com/DebajyotiSaikia/copilot-prompt-analyzer/main/site/demo.gif)
 
 [Watch the narrated demo](https://chat-analyzer.deb0.com/)
 

@@ -12,10 +12,10 @@
   "homepage": "https://chat-analyzer.deb0.com/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DebajyotiSaikia/copilot-chat-analyzer.git"
+    "url": "https://github.com/DebajyotiSaikia/copilot-prompt-analyzer.git"
   },
   "bugs": {
-    "url": "https://github.com/DebajyotiSaikia/copilot-chat-analyzer/issues"
+    "url": "https://github.com/DebajyotiSaikia/copilot-prompt-analyzer/issues"
   },
   "icon": "media/icon.png",
   "galleryBanner": {
