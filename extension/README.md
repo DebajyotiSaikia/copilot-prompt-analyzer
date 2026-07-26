@@ -36,11 +36,11 @@ session closed.
 
 Save it and it becomes something you use tomorrow:
 
-| Destination | Effect |
-| --- | --- |
-| `.github/prompts/<area>.prompt.md` | A `/` command in Copilot Chat |
+| Destination                                   | Effect                                  |
+| --------------------------------------------- | --------------------------------------- |
+| `.github/prompts/<area>.prompt.md`            | A `/` command in Copilot Chat           |
 | `.github/instructions/<area>.instructions.md` | Applied automatically to matching files |
-| Anywhere via **Save as…** | Plain markdown |
+| Anywhere via **Save as…**                     | Plain markdown                          |
 
 ## Everything else
 
@@ -55,15 +55,15 @@ filters select, and cite them by id.
 **Seven reports** in the Insights tab. Three run entirely on your machine and cost
 nothing:
 
-| Report | Local | What it gives you |
-| --- | :---: | --- |
-| Global Copilot instructions | | The rules that hold across every project, for `copilot-instructions.md` |
-| Correction patterns | | Recurring assistant failure modes, each with a rule that prevents it |
-| Prompt quality | ✓ | Specificity / context / actionability scores, a monthly trend, your weakest prompts |
-| Repeated questions | ✓ | Near-duplicate asks across sessions — each cluster is a missing instruction file |
-| Project specs | | What each project is, reconstructed from the questions you asked building it |
-| Decision log | | Architecture decisions stated in chat, as a timeline plus ADR records, with reversals |
-| Paste hygiene | ✓ | Prompts that are mostly pasted terminal output, what they cost, what to do instead |
+| Report                      | Local | What it gives you                                                                     |
+| --------------------------- | :---: | ------------------------------------------------------------------------------------- |
+| Global Copilot instructions |       | The rules that hold across every project, for `copilot-instructions.md`               |
+| Correction patterns         |       | Recurring assistant failure modes, each with a rule that prevents it                  |
+| Prompt quality              |   ✓   | Specificity / context / actionability scores, a monthly trend, your weakest prompts   |
+| Repeated questions          |   ✓   | Near-duplicate asks across sessions — each cluster is a missing instruction file      |
+| Project specs               |       | What each project is, reconstructed from the questions you asked building it          |
+| Decision log                |       | Architecture decisions stated in chat, as a timeline plus ADR records, with reversals |
+| Paste hygiene               |   ✓   | Prompts that are mostly pasted terminal output, what they cost, what to do instead    |
 
 **Improve this prompt.** Open any prompt and get a rewrite plus an explanation of
 what changed.
@@ -100,23 +100,23 @@ what will be sent, before it is sent.
 
 ## Commands
 
-| Command | What it does |
-| --- | --- |
-| `Show Analyzer Sidebar` | Reveals the activity bar view |
-| `Open Analyzer In Editor` | Opens the full-width dashboard |
-| `Rescan Chat History` | Re-reads session files from disk |
-| `Classify Prompts With AI` | Assigns an area to every new prompt |
-| `Export Prompts As JSON` | Writes prompts + classifications to a file |
-| `Toggle Demo Data` | Swaps in a fabricated corpus for screenshots and recordings |
+| Command                    | What it does                                                |
+| -------------------------- | ----------------------------------------------------------- |
+| `Show Analyzer Sidebar`    | Reveals the activity bar view                               |
+| `Open Analyzer In Editor`  | Opens the full-width dashboard                              |
+| `Rescan Chat History`      | Re-reads session files from disk                            |
+| `Classify Prompts With AI` | Assigns an area to every new prompt                         |
+| `Export Prompts As JSON`   | Writes prompts + classifications to a file                  |
+| `Toggle Demo Data`         | Swaps in a fabricated corpus for screenshots and recordings |
 
 ## Settings
 
-| Setting | Default | Purpose |
-| --- | --- | --- |
-| `copilotChatAnalyzer.model` | `gpt-4o-mini` | Fallback model family when no model is picked in the UI |
-| `copilotChatAnalyzer.batchSize` | `20` | Prompts per classification request |
-| `copilotChatAnalyzer.maxPromptChars` | `1200` | Truncation applied before sending a prompt to the model |
-| `copilotChatAnalyzer.extraUserDirs` | `[]` | Extra VS Code `User` directories to scan |
+| Setting                              | Default       | Purpose                                                 |
+| ------------------------------------ | ------------- | ------------------------------------------------------- |
+| `copilotChatAnalyzer.model`          | `gpt-4o-mini` | Fallback model family when no model is picked in the UI |
+| `copilotChatAnalyzer.batchSize`      | `20`          | Prompts per classification request                      |
+| `copilotChatAnalyzer.maxPromptChars` | `1200`        | Truncation applied before sending a prompt to the model |
+| `copilotChatAnalyzer.extraUserDirs`  | `[]`          | Extra VS Code `User` directories to scan                |
 
 ## Privacy
 
@@ -126,7 +126,7 @@ seven reports never make a network call at all. No telemetry, no analytics, no
 account.
 
 **Worth knowing.** Classification and synthesis send prompt text to a language
-model through *your* Copilot subscription, under its terms. Your prompts contain
+model through _your_ Copilot subscription, under its terms. Your prompts contain
 code, paths and anything you pasted into chat — filter to a project first if some
 of it is sensitive. Prompt text is truncated to
 `copilotChatAnalyzer.maxPromptChars` before it is sent. Exports are as sensitive

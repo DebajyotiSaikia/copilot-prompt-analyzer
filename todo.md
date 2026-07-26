@@ -46,34 +46,38 @@ re-synthesises the lines and re-times the beats automatically.
 
 ## 2. Publish
 
-Author is **Debajyoti Saikia** — LICENSE, `author` in `package.json` and the
-site footer are filled in.
+Author **Debajyoti Saikia**, repo
+[DebajyotiSaikia/copilot-chat-analyzer](https://github.com/DebajyotiSaikia/copilot-chat-analyzer),
+homepage `https://chat-analyzer.deb0.com/`. All of that is wired in and pushed.
 
 - [x] Copyright holder in `extension/LICENSE`
-- [ ] Create the Marketplace publisher at `marketplace.visualstudio.com/manage`;
-      give me the ID and I replace `"publisher": "local"` in
-      `extension/package.json` and `<publisher>` in `site/index.html`.
-      `DebajyotiSaikia` matches the GitHub handle, `deb0` matches the domain —
-      your call. Also drop `"private": true` at that point.
+- [x] `git init`, initial commit, pushed to `main`
+- [x] `author` / `homepage` / `repository` / `bugs` in `package.json`;
+      `"private": true` removed
+- [x] Demo GIF in `extension/README.md` as an absolute HTTPS URL
+      (`raw.githubusercontent.com/.../main/site/demo.gif`) — resolves as soon as
+      the repo is public
+- [ ] **Make the GitHub repo public**, or the README image on the Marketplace
+      will 404
+- [ ] Create the Marketplace publisher at `marketplace.visualstudio.com/manage`.
+      Then: set `"publisher"` in `extension/package.json` and `var PUBLISHER` in
+      `site/index.html` — one line each, everything else follows from them.
 - [ ] Create an Azure DevOps PAT with **Marketplace → Manage** scope, then run
       `npx vsce login <publisher>` and type it at the prompt. Never paste it into
       chat or a file.
-- [ ] `git init`, push to `github.com/DebajyotiSaikia/<repo>`, then add
-      `repository` / `homepage` / `bugs` to `package.json`
-- [ ] Add the demo GIF to `extension/README.md`. **The Marketplace requires an absolute
-      HTTPS URL** — a relative path fails `vsce publish`. The spot is marked with a TODO.
-- [ ] Tag a release, then `vsce publish`
+- [ ] `git tag v0.2.0`, push the tag, then `npx vsce publish`
 - [ ] Optionally mirror to Open VSX for VSCodium users
 
 ## 3. Ship the homepage
 
 `site/` is static, dependency-free and self-contained, so any host works unchanged.
 
-- [ ] Decide the host. Every other product sits on a `*.deb0.com` subdomain
-      (hyperion, upload, radio, prism, enclave, capture…), so something like
-      `chats.deb0.com` would match — confirm the subdomain and I wire it up.
-- [ ] Deploy
-- [ ] Fill the three `data-marketplace` hrefs and the two link TODOs in `site/index.html`
+- [x] Host decided: `chat-analyzer.deb0.com`. `site/CNAME` is in place for GitHub
+      Pages; delete it if you serve the folder from somewhere else.
+- [ ] Deploy — for Pages: repo → Settings → Pages → deploy from `main`, folder
+      `/site`, then point a `chat-analyzer` CNAME at `debajyotisaikia.github.io`
+- [ ] Set `var PUBLISHER` in `site/index.html` once the publisher exists; it
+      fills every install link and the `ext install` snippet
 
 ## 4. Backlog
 
