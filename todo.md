@@ -73,16 +73,25 @@ homepage `https://chat-analyzer.deb0.com/`. All of that is wired in and pushed.
       Azure CLI supplies (`a91a1e6b-…`, Entra tenant `2b0a77cc…`, "Default
       Directory") has no rights on publisher `/DebajyotiSaikia`, which was
       created while the portal was in the **Microsoft Account** directory.
-      - `az` cannot hold the Microsoft Account identity at all: ARM refuses the
+      Every programmatic route is closed, and each was tested rather than
+      assumed:
+      - `az` cannot hold the Microsoft Account identity at all — ARM refuses the
         `/consumers` endpoint (`AADSTS9002332`). WAM sign-in and device-code
         sign-in both fail. Structural, not a machine problem.
-      - Azure DevOps lists only `Default Directory`, so a PAT created there
-        carries the same rejected principal, and there is no Microsoft Account
-        directory to create an organisation in.
-      - Resolution: accept the publisher agreement if the publisher does appear
-        under Default Directory, otherwise add the Entra identity to the
-        publisher as **Owner**. Either way `vsce publish --azure-credential`
-        then works with no PAT to store or rotate.
+      - Azure DevOps offers only `Default Directory`, so the organisation
+        `debajyotisaikia` and any token minted in it carry the rejected
+        principal. Tested with a real `vso.gallery_manage` all-organisations
+        PAT: identical denial. The token was revoked immediately.
+      - Creating a second publisher from the API is refused on purpose:
+        `InvalidReCaptchaTokenException`, "Creating a publisher from command
+        line is not supported".
+      - **Fix, browser only**: publisher page → **Members** → add
+        `debajyoti.saikia@yahoo.co.in` from **Default Directory** as **Owner**.
+        After that `vsce publish --azure-credential` works with no PAT to store
+        or rotate, for this version and every future one.
+      - Fallback that ships today but leaves the CLI blocked: upload
+        `extension/copilot-prompt-analyzer-0.2.0.vsix` through **New extension →
+        Visual Studio Code** on the publisher page.
 - [ ] Move the `v0.2.0` tag onto the commit that actually ships
 - [ ] Optionally mirror to Open VSX for VSCodium users
 
