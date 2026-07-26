@@ -102,7 +102,10 @@ async function hold(page, ms) {
  */
 async function holdUntil(page, videoSeconds) {
   if (!wantVideo) {
-    await hold(page, Math.max(0, videoSeconds * 1000 - (Date.now() - startedAt)));
+    await hold(
+      page,
+      Math.max(0, videoSeconds * 1000 - (Date.now() - startedAt))
+    );
     return;
   }
   const wallCap = Date.now() + 90000;
@@ -282,6 +285,13 @@ const summary = await frame.evaluate(() => ({
 }));
 console.log("analyzer:", JSON.stringify(summary));
 
+// A signed-in profile reopens the chat pane once Copilot finishes waking up,
+// which is after the earlier closes. Shut it one last time now that everything
+// has settled.
+await runCommand(page, "View: Close Secondary Side Bar");
+await hold(page, 800);
+await tidyWorkbench(page);
+
 const withModels = await modelsAvailable(frame);
 console.log(
   withModels
@@ -420,7 +430,8 @@ if (withModels && (await aiReportCard.count())) {
 // Asking a question of your own history, answered from the filtered prompts.
 if (withModels) {
   await beat(page, "ask", async () => {
-    await clickIn(frame, '.tabs button:text-is("Ask")');
+    // Ask is a toggle in the header, not a tab.
+    await clickIn(frame, '.btn-ghost:text-is("Ask")');
     await hold(page, 1200);
     const box = frame.locator(".ask-input textarea");
     await box.click({ force: true, timeout: 8000 });
