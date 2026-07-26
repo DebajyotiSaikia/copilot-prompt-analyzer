@@ -9,5 +9,6 @@ extension/demo/.azure-speech-key
 extension/demo/voice/
 extension/demo/frames/
 extension/demo/shots/
+extension/demo/audit/
 extension/demo/*.mp4
 extension/demo/*.gif
