@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.2.2
+
+### Changed
+
+- Homepage moved to `https://prompts.deb0.com/`. The old address stops
+  resolving once its DNS record is repointed, and GitHub Pages serves only one
+  custom domain at a time, so there is no redirect from the previous one.
+
 ## 0.2.1
 
 ### Fixed

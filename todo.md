@@ -8,7 +8,7 @@ Only outstanding work is listed. Completed sections have been removed; see
 **v0.2.1 — shipped.**
 
 - Extension: https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer
-- Homepage: https://chat-analyzer.deb0.com/ (HTTPS enforced)
+- Homepage: https://prompts.deb0.com/
 - Source: https://github.com/DebajyotiSaikia/copilot-prompt-analyzer
 
 Corpus after the JSONL fix: **3,536 prompts / 85 sessions / 2025-09-16 → 2026-07-26**,
@@ -67,15 +67,11 @@ Marketplace website" — so no amount of CLI work gets around them.
 
 - [ ] No automated tests. Everything so far was verified by hand or by one-off
       scripts that were then deleted. The parts that would repay a test most are
-      the ones that were hardest to get right:
-      - `chatStore.readJsonl` — patch replay (`kind` 0/1/2), sparse arrays from
-        index patches, and byte-offset resume producing output identical to a
-        full parse
-      - `scanCache` — key derivation from size and mtime, and `resumable()`
-        against a file that only grew
-      - `analysis` — the `STEERING` regex, which silently skewed quality scores
-        and invented a duplicate cluster when `@agent Continue:` slipped through
-      - `webview/markdown` — pipe tables, which shipped broken once already
+      the ones that were hardest to get right: - `chatStore.readJsonl` — patch replay (`kind` 0/1/2), sparse arrays from
+      index patches, and byte-offset resume producing output identical to a
+      full parse - `scanCache` — key derivation from size and mtime, and `resumable()`
+      against a file that only grew - `analysis` — the `STEERING` regex, which silently skewed quality scores
+      and invented a duplicate cluster when `@agent Continue:` slipped through - `webview/markdown` — pipe tables, which shipped broken once already
 - [ ] No CI. A workflow running `npm run typecheck` and the tests above on push
       would have caught both the table regression and the steering-regex bug
       before they reached a recording.

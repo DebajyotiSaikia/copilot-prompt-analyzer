@@ -12,7 +12,7 @@ key, no account, no telemetry.
 
 ![Copilot Prompt Analyzer](https://raw.githubusercontent.com/DebajyotiSaikia/copilot-prompt-analyzer/main/site/demo.gif)
 
-[Watch the narrated demo](https://chat-analyzer.deb0.com/)
+[Watch the narrated demo](https://prompts.deb0.com/)
 
 ---
 
