@@ -24,12 +24,17 @@ npx vsce publish --azure-credential --packagePath .\copilot-prompt-analyzer-<ver
 
 ## 1. Ship the homepage
 
-`site/` is static, dependency-free and self-contained, so any host works
-unchanged. `site/CNAME` already targets `chat-analyzer.deb0.com`; delete it if
-you serve the folder from somewhere other than GitHub Pages.
+Deployed by `.github/workflows/pages.yml` on every push that touches `site/`.
+Pages can only serve `/` or `/docs` from a branch, so the folder is uploaded as
+an artifact instead. The custom domain is already registered with GitHub and
+`site/CNAME` is in place — the only missing piece is the DNS record.
 
-- [ ] Deploy — for Pages: repo → Settings → Pages → deploy from `main`, folder
-      `/site`, then point a `chat-analyzer` CNAME at `debajyotisaikia.github.io`
+- [ ] Add the DNS record at IONOS: **CNAME**, host `chat-analyzer`, value
+      `debajyotisaikia.github.io`. No A record, no trailing content.
+- [ ] Once it resolves, turn on HTTPS enforcement:
+      `gh api -X PUT repos/DebajyotiSaikia/copilot-prompt-analyzer/pages -F https_enforced=true`
+      GitHub issues the certificate automatically, which can take up to an hour
+      after the record propagates.
 
 ## 2. Nice to have
 
@@ -38,9 +43,6 @@ you serve the folder from somewhere other than GitHub Pages.
       same VSIX.
 - [ ] Verify `deb0.com` on the publisher profile for the verified badge. Needs a
       DNS TXT record; cosmetic only, does not affect publishing.
-- [ ] Rename the GitHub repo to `copilot-prompt-analyzer` to match the extension.
-      GitHub redirects the old URLs, but `repository` / `bugs` in `package.json`
-      and the README image URL would want updating in the same change.
 
 ## 3. Known gap in the demo
 
