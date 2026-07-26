@@ -94,7 +94,7 @@ export async function resolveModel(): Promise<vscode.LanguageModelChat> {
   }
 
   const family = vscode.workspace
-    .getConfiguration("copilotChatAnalyzer")
+    .getConfiguration("copilotPromptAnalyzer")
     .get<string>("model");
   const attempts: vscode.LanguageModelChatSelector[] = [];
   if (family) {

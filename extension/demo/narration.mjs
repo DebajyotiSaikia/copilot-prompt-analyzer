@@ -3,7 +3,7 @@
 export const NARRATION = [
   {
     id: "intro",
-    text: "Every prompt you have ever typed into Copilot Chat is already on your disk. Copilot Chat Analyzer reads that history and turns it into something you can actually use.",
+    text: "Every prompt you have ever typed into Copilot Chat is already on your disk. Copilot Prompt Analyzer reads that history and turns it into something you can actually use.",
   },
   {
     id: "areas",
@@ -39,6 +39,6 @@ export const NARRATION = [
   },
   {
     id: "outro",
-    text: "Areas, prompts, insights, and a reusable working prompt for every area of your work. Copilot Chat Analyzer, for Visual Studio Code.",
+    text: "Areas, prompts, insights, and a reusable working prompt for every area of your work. Copilot Prompt Analyzer, for Visual Studio Code.",
   },
 ];

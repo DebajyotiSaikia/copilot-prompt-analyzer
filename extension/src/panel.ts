@@ -35,8 +35,8 @@ export class AnalyzerPanel {
     }
 
     const panel = vscode.window.createWebviewPanel(
-      "copilotChatAnalyzer",
-      "Copilot Chat Analyzer",
+      "copilotPromptAnalyzer",
+      "Copilot Prompt Analyzer",
       column,
       { ...webviewOptions(context.extensionUri), retainContextWhenHidden: true }
     );

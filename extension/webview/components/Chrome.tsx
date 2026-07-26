@@ -127,7 +127,7 @@ export function Chrome({
         <div className="brand">
           <div className="brand-mark" aria-hidden="true" />
           <div className="brand-copy">
-            <h1>{compact ? "Chat Analyzer" : "Copilot Chat Analyzer"}</h1>
+            <h1>{compact ? "Prompt Analyzer" : "Copilot Prompt Analyzer"}</h1>
             <p className="brand-sub">
               {taxonomyName}
               {scannedAt && !compact

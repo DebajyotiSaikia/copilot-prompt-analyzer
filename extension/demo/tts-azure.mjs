@@ -63,7 +63,7 @@ export async function synthesize(text, outFile) {
         "Ocp-Apim-Subscription-Key": key,
         "Content-Type": "application/ssml+xml",
         "X-Microsoft-OutputFormat": "riff-24khz-16bit-mono-pcm",
-        "User-Agent": "copilot-chat-analyzer-demo",
+        "User-Agent": "copilot-prompt-analyzer-demo",
       },
       body: ssml,
     }

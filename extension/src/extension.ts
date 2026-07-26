@@ -15,34 +15,34 @@ export function activate(context: vscode.ExtensionContext): void {
       new AnalyzerSidebar(context.extensionUri, service),
       { webviewOptions: { retainContextWhenHidden: true } }
     ),
-    vscode.commands.registerCommand("copilotChatAnalyzer.open", () => {
+    vscode.commands.registerCommand("copilotPromptAnalyzer.open", () => {
       AnalyzerPanel.show(context, service);
     }),
-    vscode.commands.registerCommand("copilotChatAnalyzer.focus", async () => {
+    vscode.commands.registerCommand("copilotPromptAnalyzer.focus", async () => {
       await vscode.commands.executeCommand(`${AnalyzerSidebar.viewId}.focus`);
     }),
-    vscode.commands.registerCommand("copilotChatAnalyzer.reindex", async () => {
+    vscode.commands.registerCommand("copilotPromptAnalyzer.reindex", async () => {
       await service.rescan();
     }),
     vscode.commands.registerCommand(
-      "copilotChatAnalyzer.classify",
+      "copilotPromptAnalyzer.classify",
       async () => {
         await service.classify(false);
       }
     ),
     vscode.commands.registerCommand(
-      "copilotChatAnalyzer.exportJson",
+      "copilotPromptAnalyzer.exportJson",
       async () => {
         await service.exportJson();
       }
     ),
     vscode.commands.registerCommand(
-      "copilotChatAnalyzer.toggleDemo",
+      "copilotPromptAnalyzer.toggleDemo",
       async () => {
         const next = !service.isDemoMode;
         await service.setDemoMode(next);
         if (next) {
-          await vscode.commands.executeCommand("copilotChatAnalyzer.open");
+          await vscode.commands.executeCommand("copilotPromptAnalyzer.open");
         }
       }
     )

@@ -124,7 +124,7 @@ export async function classifyPrompts(
   token: vscode.CancellationToken,
   onProgress: ClassifyProgress
 ): Promise<{ results: Record<string, Classification>; skipped: number }> {
-  const config = vscode.workspace.getConfiguration("copilotChatAnalyzer");
+  const config = vscode.workspace.getConfiguration("copilotPromptAnalyzer");
   const batchSize = Math.max(1, config.get<number>("batchSize") ?? 20);
   const limit = Math.max(200, config.get<number>("maxPromptChars") ?? 1200);
 

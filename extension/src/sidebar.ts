@@ -5,7 +5,7 @@ import { renderWebviewHtml, webviewOptions } from "./webviewHtml";
 
 /** Compact dashboard hosted in the activity bar. */
 export class AnalyzerSidebar implements vscode.WebviewViewProvider {
-  static readonly viewId = "copilotChatAnalyzer.view";
+  static readonly viewId = "copilotPromptAnalyzer.view";
 
   constructor(
     private readonly extensionUri: vscode.Uri,

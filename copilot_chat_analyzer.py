@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""copilot-chat-analyzer - index and analyze GitHub Copilot Chat history.
+"""copilot-prompt-analyzer - index and analyze GitHub Copilot Chat history.
 
 VS Code persists every chat panel session as JSON on disk. This tool reads those
 files (read-only), extracts each user prompt plus its metadata, and stores them
@@ -657,7 +657,7 @@ def cmd_export(args) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="copilot-chat-analyzer",
+        prog="copilot-prompt-analyzer",
         description="Index and analyze GitHub Copilot Chat prompts stored by VS Code.")
     parser.add_argument("--db", default=str(DEFAULT_DB), help="SQLite database path")
     sub = parser.add_subparsers(dest="command", required=True)

@@ -6,7 +6,7 @@ carries the story. Record with demo data, never with real history.
 ## Before you record
 
 ```
-Ctrl+Shift+P → Copilot Chat Analyzer: Toggle Demo Data
+Ctrl+Shift+P → Copilot Prompt Analyzer: Toggle Demo Data
 ```
 
 Checklist:
@@ -55,7 +55,7 @@ decide to read anything. Keep it under 8 MB or the marketplace will not inline i
 ## After you record
 
 ```
-Ctrl+Shift+P → Copilot Chat Analyzer: Toggle Demo Data
+Ctrl+Shift+P → Copilot Prompt Analyzer: Toggle Demo Data
 ```
 
 Confirm the header returns to your real prompt count before doing anything else.

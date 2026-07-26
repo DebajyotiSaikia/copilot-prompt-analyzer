@@ -197,11 +197,11 @@ await hold(page, 800);
 await tidyWorkbench(page);
 
 // Never film real chat history. This also opens the analyzer in the editor.
-await runCommand(page, "Copilot Chat Analyzer: Toggle Demo Data");
+await runCommand(page, "Copilot Prompt Analyzer: Toggle Demo Data");
 await hold(page, 2500);
 
 // Put the extension's own view in the side bar rather than the file explorer.
-await runCommand(page, "Copilot Chat Analyzer: Show Analyzer Sidebar");
+await runCommand(page, "Copilot Prompt Analyzer: Show Analyzer Sidebar");
 await hold(page, 2000);
 
 // Opening the analyzer brings the chat pane back with it, so close it again now

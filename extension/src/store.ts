@@ -11,7 +11,7 @@ import type {
   Taxonomy,
 } from "./types";
 
-const STATE_KEY = "copilotChatAnalyzer.state.v1";
+const STATE_KEY = "copilotPromptAnalyzer.state.v1";
 
 export const DEFAULT_TAXONOMY: Taxonomy = {
   name: "Engineering areas",

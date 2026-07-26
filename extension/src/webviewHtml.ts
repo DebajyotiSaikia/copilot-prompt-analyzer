@@ -42,7 +42,7 @@ export function renderWebviewHtml(
       font-src ${webview.cspSource};
       script-src 'nonce-${key}';" />
     <link rel="stylesheet" href="${asset("webview.css")}" />
-    <title>Copilot Chat Analyzer</title>
+    <title>Copilot Prompt Analyzer</title>
   </head>
   <body data-host="${host}" data-nonce="${key}" data-mermaid-uri="${asset("mermaid.js")}">
     <div id="root"></div>

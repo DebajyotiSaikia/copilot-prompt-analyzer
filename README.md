@@ -1,4 +1,4 @@
-# copilot-chat-analyzer
+# copilot-prompt-analyzer
 
 Reads every GitHub Copilot Chat prompt VS Code has stored on disk, groups them by
 topic area with AI, and lets you interrogate the result in natural language.
@@ -9,7 +9,7 @@ Two pieces that share one data source:
 | Part                                                              | Use it for                                                                     |
 | ----------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | [extension/](extension) — VS Code extension                       | The dashboard: AI grouping, filtering, and asking questions about your history |
-| [copilot_chat_analyzer.py](copilot_chat_analyzer.py) — Python CLI | Headless indexing, SQL queries, scripted exports                               |
+| [copilot_prompt_analyzer.py](copilot_prompt_analyzer.py) — Python CLI | Headless indexing, SQL queries, scripted exports                               |
 
 The extension is the product. The CLI is there when you want raw SQL over the
 corpus or a scheduled export. Neither depends on the other.
@@ -19,7 +19,7 @@ corpus or a scheduled export. Neither depends on the other.
 Grouping and Q&A run through the VS Code Language Model API, so they use your
 existing Copilot subscription — no API key, nothing uploaded anywhere else.
 
-It is already built and installed. Click the **Copilot Chat Analyzer** icon in the
+It is already built and installed. Click the **Copilot Prompt Analyzer** icon in the
 activity bar, then **Classify with AI**. Use **Expand** for the full-width dashboard
 in an editor tab; both views share one data source and stay in sync.
 
@@ -69,12 +69,12 @@ and produce identical results.
 ## CLI usage
 
 ```powershell
-py copilot_chat_analyzer.py index          # build/refresh copilot-chats.db
-py copilot_chat_analyzer.py stats          # how you prompt, at a glance
-py copilot_chat_analyzer.py list -n 50     # most recent prompts
-py copilot_chat_analyzer.py search "docker deploy"
-py copilot_chat_analyzer.py session 4f312b # full transcript of one session
-py copilot_chat_analyzer.py export --format csv --out out/prompts.csv
+py copilot_prompt_analyzer.py index          # build/refresh copilot-chats.db
+py copilot_prompt_analyzer.py stats          # how you prompt, at a glance
+py copilot_prompt_analyzer.py list -n 50     # most recent prompts
+py copilot_prompt_analyzer.py search "docker deploy"
+py copilot_prompt_analyzer.py session 4f312b # full transcript of one session
+py copilot_prompt_analyzer.py export --format csv --out out/prompts.csv
 ```
 
 `index` is incremental; add `--rebuild` to start from scratch. Use
@@ -97,9 +97,9 @@ py copilot_chat_analyzer.py export --format csv --out out/prompts.csv
 `search` uses SQLite FTS5, so boolean and phrase queries work:
 
 ```powershell
-py copilot_chat_analyzer.py search "firebase AND deploy"
-py copilot_chat_analyzer.py search '"session resumption"'
-py copilot_chat_analyzer.py search "auth*" --workspace Nexus --since 2026-01-01
+py copilot_prompt_analyzer.py search "firebase AND deploy"
+py copilot_prompt_analyzer.py search '"session resumption"'
+py copilot_prompt_analyzer.py search "auth*" --workspace Nexus --since 2026-01-01
 ```
 
 Pass `--like` for a plain substring match when a query trips FTS5 syntax.
@@ -140,5 +140,5 @@ exports from the extension are as sensitive as the original chats — keep them 
 of version control.
 
 Classification and Q&A send prompt text to a language model through your Copilot
-subscription. Prompt text is truncated to `copilotChatAnalyzer.maxPromptChars`
+subscription. Prompt text is truncated to `copilotPromptAnalyzer.maxPromptChars`
 before it is sent; lower that value, or filter first, if a workspace is sensitive.

@@ -200,7 +200,7 @@ export class AnalyzerService {
     const batchSize = Math.max(
       1,
       vscode.workspace
-        .getConfiguration("copilotChatAnalyzer")
+        .getConfiguration("copilotPromptAnalyzer")
         .get<number>("batchSize") ?? 20
     );
     const requests = Math.ceil(pending / batchSize);
@@ -337,7 +337,7 @@ export class AnalyzerService {
       this.context.globalStorageUri.fsPath
     );
     const extra = vscode.workspace
-      .getConfiguration("copilotChatAnalyzer")
+      .getConfiguration("copilotPromptAnalyzer")
       .get<string[]>("extraUserDirs", []);
     return [...new Set([primary, ...extra])];
   }
@@ -1152,7 +1152,7 @@ export class AnalyzerService {
         await this.openSession(message.sessionId);
         return;
       case "openInEditor":
-        await vscode.commands.executeCommand("copilotChatAnalyzer.open");
+        await vscode.commands.executeCommand("copilotPromptAnalyzer.open");
         return;
       case "copy":
         await vscode.env.clipboard.writeText(message.text);

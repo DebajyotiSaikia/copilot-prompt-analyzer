@@ -71,7 +71,7 @@
   - Decision log — architecture decisions stated in chat, as a timeline plus ADR records.
   - Paste hygiene — prompts that are mostly pasted machine output, and what they cost. Computed locally.
 - **Improve this prompt** in the detail drawer — rewrites a weak prompt and explains what changed.
-- **Demo data mode** (`Copilot Chat Analyzer: Toggle Demo Data`) — swaps in a fabricated corpus for screenshots and recordings so real history is never shown.
+- **Demo data mode** (`Copilot Prompt Analyzer: Toggle Demo Data`) — swaps in a fabricated corpus for screenshots and recordings so real history is never shown.
 
 ### Changed
 

@@ -1,4 +1,4 @@
-# Copilot Chat Analyzer — Roadmap
+# Copilot Prompt Analyzer — Roadmap
 
 Only outstanding work is listed. Completed sections have been removed; see
 `extension/CHANGELOG.md` for what shipped.
@@ -59,7 +59,7 @@ homepage `https://chat-analyzer.deb0.com/`. All of that is wired in and pushed.
       the repo is public
 - [x] Publisher wired as `DebajyotiSaikia` in `extension/package.json` and
       `site/index.html`. Extension identity:
-      `DebajyotiSaikia.copilot-chat-analyzer`
+      `DebajyotiSaikia.copilot-prompt-analyzer`
 - [x] GitHub repo is public; the README GIF resolves over HTTPS (verified 200)
 - [x] Marketplace publisher created —
       `marketplace.visualstudio.com/manage/publishers/debajyotisaikia`

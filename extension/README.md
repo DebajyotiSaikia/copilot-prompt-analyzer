@@ -1,4 +1,4 @@
-# Copilot Chat Analyzer
+# Copilot Prompt Analyzer
 
 **You have already written the spec. It is buried in your chat history.**
 
@@ -10,7 +10,7 @@ reusable prompt you can drop straight into `.github/prompts/`.
 Runs on your machine, through the Copilot subscription you already have. No API
 key, no account, no telemetry.
 
-![Copilot Chat Analyzer](https://raw.githubusercontent.com/DebajyotiSaikia/copilot-chat-analyzer/main/site/demo.gif)
+![Copilot Prompt Analyzer](https://raw.githubusercontent.com/DebajyotiSaikia/copilot-chat-analyzer/main/site/demo.gif)
 
 [Watch the narrated demo](https://chat-analyzer.deb0.com/)
 
@@ -76,7 +76,7 @@ what changed.
 
 ## Getting started
 
-1. Click the **Copilot Chat Analyzer** icon in the activity bar. Your history is
+1. Click the **Copilot Prompt Analyzer** icon in the activity bar. Your history is
    read immediately — no setup, no export.
 2. Press **Classify with AI** and approve model access. Results are cached by
    prompt text, so later runs only classify what is new.
@@ -119,10 +119,10 @@ what will be sent, before it is sent.
 
 | Setting                              | Default       | Purpose                                                 |
 | ------------------------------------ | ------------- | ------------------------------------------------------- |
-| `copilotChatAnalyzer.model`          | `gpt-4o-mini` | Fallback model family when no model is picked in the UI |
-| `copilotChatAnalyzer.batchSize`      | `20`          | Prompts per classification request                      |
-| `copilotChatAnalyzer.maxPromptChars` | `1200`        | Truncation applied before sending a prompt to the model |
-| `copilotChatAnalyzer.extraUserDirs`  | `[]`          | Extra VS Code `User` directories to scan                |
+| `copilotPromptAnalyzer.model`          | `gpt-4o-mini` | Fallback model family when no model is picked in the UI |
+| `copilotPromptAnalyzer.batchSize`      | `20`          | Prompts per classification request                      |
+| `copilotPromptAnalyzer.maxPromptChars` | `1200`        | Truncation applied before sending a prompt to the model |
+| `copilotPromptAnalyzer.extraUserDirs`  | `[]`          | Extra VS Code `User` directories to scan                |
 
 ## Privacy
 
@@ -135,7 +135,7 @@ account.
 model through _your_ Copilot subscription, under its terms. Your prompts contain
 code, paths and anything you pasted into chat — filter to a project first if some
 of it is sensitive. Prompt text is truncated to
-`copilotChatAnalyzer.maxPromptChars` before it is sent. Exports are as sensitive
+`copilotPromptAnalyzer.maxPromptChars` before it is sent. Exports are as sensitive
 as the original chats.
 
 ## Requirements

@@ -1,6 +1,6 @@
 {
-  "name": "copilot-chat-analyzer",
-  "displayName": "Copilot Chat Analyzer",
+  "name": "copilot-prompt-analyzer",
+  "displayName": "Copilot Prompt Analyzer",
   "description": "Group, explore, and interrogate your GitHub Copilot Chat history by topic area.",
   "version": "0.2.0",
   "publisher": "DebajyotiSaikia",
@@ -42,104 +42,104 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "copilotChatAnalyzer",
-          "title": "Copilot Chat Analyzer",
+          "id": "copilotPromptAnalyzer",
+          "title": "Copilot Prompt Analyzer",
           "icon": "media/analyzer.svg"
         }
       ]
     },
     "views": {
-      "copilotChatAnalyzer": [
+      "copilotPromptAnalyzer": [
         {
-          "id": "copilotChatAnalyzer.view",
+          "id": "copilotPromptAnalyzer.view",
           "name": "Prompt Areas",
           "type": "webview",
           "icon": "media/analyzer.svg",
-          "contextualTitle": "Copilot Chat Analyzer"
+          "contextualTitle": "Copilot Prompt Analyzer"
         }
       ]
     },
     "menus": {
       "view/title": [
         {
-          "command": "copilotChatAnalyzer.open",
-          "when": "view == copilotChatAnalyzer.view",
+          "command": "copilotPromptAnalyzer.open",
+          "when": "view == copilotPromptAnalyzer.view",
           "group": "navigation@1"
         },
         {
-          "command": "copilotChatAnalyzer.classify",
-          "when": "view == copilotChatAnalyzer.view",
+          "command": "copilotPromptAnalyzer.classify",
+          "when": "view == copilotPromptAnalyzer.view",
           "group": "navigation@2"
         },
         {
-          "command": "copilotChatAnalyzer.reindex",
-          "when": "view == copilotChatAnalyzer.view",
+          "command": "copilotPromptAnalyzer.reindex",
+          "when": "view == copilotPromptAnalyzer.view",
           "group": "navigation@3"
         },
         {
-          "command": "copilotChatAnalyzer.exportJson",
-          "when": "view == copilotChatAnalyzer.view",
+          "command": "copilotPromptAnalyzer.exportJson",
+          "when": "view == copilotPromptAnalyzer.view",
           "group": "1_actions"
         }
       ]
     },
     "commands": [
       {
-        "command": "copilotChatAnalyzer.open",
+        "command": "copilotPromptAnalyzer.open",
         "title": "Open Analyzer In Editor",
-        "category": "Copilot Chat Analyzer",
+        "category": "Copilot Prompt Analyzer",
         "icon": "$(link-external)"
       },
       {
-        "command": "copilotChatAnalyzer.focus",
+        "command": "copilotPromptAnalyzer.focus",
         "title": "Show Analyzer Sidebar",
-        "category": "Copilot Chat Analyzer",
+        "category": "Copilot Prompt Analyzer",
         "icon": "$(graph)"
       },
       {
-        "command": "copilotChatAnalyzer.reindex",
+        "command": "copilotPromptAnalyzer.reindex",
         "title": "Rescan Chat History",
-        "category": "Copilot Chat Analyzer",
+        "category": "Copilot Prompt Analyzer",
         "icon": "$(refresh)"
       },
       {
-        "command": "copilotChatAnalyzer.classify",
+        "command": "copilotPromptAnalyzer.classify",
         "title": "Classify Prompts With AI",
-        "category": "Copilot Chat Analyzer",
+        "category": "Copilot Prompt Analyzer",
         "icon": "$(sparkle)"
       },
       {
-        "command": "copilotChatAnalyzer.exportJson",
+        "command": "copilotPromptAnalyzer.exportJson",
         "title": "Export Prompts As JSON",
-        "category": "Copilot Chat Analyzer"
+        "category": "Copilot Prompt Analyzer"
       },
       {
-        "command": "copilotChatAnalyzer.toggleDemo",
+        "command": "copilotPromptAnalyzer.toggleDemo",
         "title": "Toggle Demo Data",
-        "category": "Copilot Chat Analyzer"
+        "category": "Copilot Prompt Analyzer"
       }
     ],
     "configuration": {
-      "title": "Copilot Chat Analyzer",
+      "title": "Copilot Prompt Analyzer",
       "properties": {
-        "copilotChatAnalyzer.model": {
+        "copilotPromptAnalyzer.model": {
           "type": "string",
           "default": "gpt-4o-mini",
           "description": "Preferred language model family for classification and Q&A. Falls back to any available Copilot model."
         },
-        "copilotChatAnalyzer.batchSize": {
+        "copilotPromptAnalyzer.batchSize": {
           "type": "number",
           "default": 20,
           "minimum": 1,
           "maximum": 60,
           "description": "How many prompts to classify per model request."
         },
-        "copilotChatAnalyzer.maxPromptChars": {
+        "copilotPromptAnalyzer.maxPromptChars": {
           "type": "number",
           "default": 1200,
           "description": "Prompt text is truncated to this many characters before being sent to the model."
         },
-        "copilotChatAnalyzer.extraUserDirs": {
+        "copilotPromptAnalyzer.extraUserDirs": {
           "type": "array",
           "items": {
             "type": "string"
