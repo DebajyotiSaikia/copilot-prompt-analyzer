@@ -42,6 +42,28 @@ function renderCodeBlock(language: string, code: string): string {
   return `<pre class="md-code"><code>${escapeHtml(code)}</code></pre>`;
 }
 
+const TABLE_ROW = /^\s*\|(.+)\|\s*$/;
+const TABLE_RULE = /^\s*\|[\s:|-]+\|\s*$/;
+
+function splitRow(line: string): string[] {
+  return line
+    .trim()
+    .replace(/^\||\|$/g, "")
+    .split("|")
+    .map((cell) => cell.trim());
+}
+
+function renderTable(header: string[], rows: string[][]): string {
+  const head = header.map((cell) => `<th>${inline(cell)}</th>`).join("");
+  const body = rows
+    .map(
+      (row) =>
+        `<tr>${row.map((cell) => `<td>${inline(cell)}</td>`).join("")}</tr>`
+    )
+    .join("");
+  return `<table class="md-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+}
+
 export function renderMarkdown(source: string): string {
   const lines = source.replace(/\r\n/g, "\n").split("\n");
   const out: string[] = [];
@@ -64,29 +86,7 @@ export function renderMarkdown(source: string): string {
     }
   };
 
-  const TABLE_ROW = /^\s*\|(.+)\|\s*$/;
-const TABLE_RULE = /^\s*\|[\s:|-]+\|\s*$/;
-
-function splitRow(line: string): string[] {
-  return line
-    .trim()
-    .replace(/^\||\|$/g, "")
-    .split("|")
-    .map((cell) => cell.trim());
-}
-
-function renderTable(header: string[], rows: string[][]): string {
-  const head = header.map((cell) => `<th>${inline(cell)}</th>`).join("");
-  const body = rows
-    .map(
-      (row) =>
-        `<tr>${row.map((cell) => `<td>${inline(cell)}</td>`).join("")}</tr>`
-    )
-    .join("");
-  return `<table class="md-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
-}
-
-for (let index = 0; index < lines.length; index++) {
+  for (let index = 0; index < lines.length; index++) {
     const line = lines[index];
     const fence = /^\s*```(\w+)?/.exec(line);
     if (fence) {

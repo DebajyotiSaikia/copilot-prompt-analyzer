@@ -15,7 +15,10 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    // The tests import source files by their real `.ts` path, because Node runs
+    // them directly with type stripping rather than through a build.
+    "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["src", "webview"]
+  "include": ["src", "webview", "test"]
 }

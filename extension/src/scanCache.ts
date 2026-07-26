@@ -37,11 +37,16 @@ const LEGACY_FILE = "scan-cache.json";
 export class ScanCache {
   private entries: Record<string, ScanCacheEntry> = {};
   private dirty = false;
+  private readonly file: string;
+  private readonly legacy: string;
 
-  private constructor(
-    private readonly file: string,
-    private readonly legacy: string
-  ) {}
+  // Written out longhand rather than as parameter properties: those need a real
+  // TypeScript transform, and this module is exercised directly by `node --test`
+  // with type stripping alone.
+  private constructor(file: string, legacy: string) {
+    this.file = file;
+    this.legacy = legacy;
+  }
 
   static async open(globalStorageDir: string): Promise<ScanCache> {
     const cache = new ScanCache(

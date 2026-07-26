@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extension:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # The tests import .ts directly and rely on Node's type stripping.
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: extension/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: node esbuild.mjs --production
+      # Packaging is the only step that catches a broken manifest, a missing
+      # LICENSE, or a README the Marketplace will reject.
+      - run: npx --yes @vscode/vsce package --out /tmp/ci.vsix
+
+  repo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: No secrets in tracked files
+        run: node scripts/secret-scan.mjs
+      - name: Homepage is valid
+        run: node scripts/site-check.mjs

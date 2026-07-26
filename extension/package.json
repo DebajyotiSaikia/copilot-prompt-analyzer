@@ -154,7 +154,8 @@
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "typecheck": "tsc --noEmit",
-    "package": "npm run typecheck && node esbuild.mjs --production"
+    "test": "node --test \"test/*.test.ts\"",
+    "package": "npm run typecheck && npm test && node esbuild.mjs --production"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

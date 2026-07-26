@@ -211,11 +211,16 @@ class SessionBuilder {
   private readonly priorToolCalls = new Map<number, number>();
   private readonly replyChars = new Map<number, number>();
   private nextSeq = 0;
+  private readonly file: string;
+  private readonly workspace: string | null;
 
-  constructor(
-    private readonly file: string,
-    private readonly workspace: string | null
-  ) {}
+  // Longhand rather than parameter properties: those need a full TypeScript
+  // transform, and this module is exercised directly by `node --test`, which
+  // only strips types.
+  constructor(file: string, workspace: string | null) {
+    this.file = file;
+    this.workspace = workspace;
+  }
 
   /** Restores state from a cached result so appended patches can continue it. */
   rehydrate(entry: ScanCacheEntry): void {

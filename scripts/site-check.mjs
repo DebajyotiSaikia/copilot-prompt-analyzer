@@ -68,7 +68,9 @@ for (const [needle, label] of required) {
 /* ---------- heading order ---------- */
 const levels = [...html.matchAll(/<h([1-6])\b/g)].map((m) => Number(m[1]));
 if (levels.filter((l) => l === 1).length !== 1) {
-  problems.push(`expected exactly one <h1>, found ${levels.filter((l) => l === 1).length}`);
+  problems.push(
+    `expected exactly one <h1>, found ${levels.filter((l) => l === 1).length}`
+  );
 }
 for (let i = 1; i < levels.length; i++) {
   if (levels[i] - levels[i - 1] > 1) {
@@ -86,7 +88,9 @@ for (const marker of ["TODO", "FIXME", "<publisher>", "lorem"]) {
 /* ---------- css selectors that no longer match anything ---------- */
 const css = readFileSync(join(site, "styles.css"), "utf8");
 const classes = new Set(
-  [...html.matchAll(/class="([^"]+)"/g)].flatMap((m) => m[1].trim().split(/\s+/))
+  [...html.matchAll(/class="([^"]+)"/g)].flatMap((m) =>
+    m[1].trim().split(/\s+/)
+  )
 );
 for (const [, name] of css.matchAll(/\.([a-z][a-z0-9-]*)\s*[,{]/gi)) {
   if (!classes.has(name)) {
@@ -94,7 +98,9 @@ for (const [, name] of css.matchAll(/\.([a-z][a-z0-9-]*)\s*[,{]/gi)) {
   }
 }
 
-console.log(`checked ${refs.length} local refs, ${ids.size} ids, ${levels.length} headings\n`);
+console.log(
+  `checked ${refs.length} local refs, ${ids.size} ids, ${levels.length} headings\n`
+);
 if (problems.length) {
   console.log("PROBLEMS");
   for (const p of problems) {

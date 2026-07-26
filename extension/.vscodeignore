@@ -3,6 +3,7 @@ node_modules/**
 src/**
 webview/**
 demo/**
+test/**
 esbuild.mjs
 tsconfig.json
 .gitignore
