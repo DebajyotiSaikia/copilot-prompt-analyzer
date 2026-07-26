@@ -26,15 +26,17 @@ npx vsce publish --azure-credential --packagePath .\copilot-prompt-analyzer-<ver
 
 Deployed by `.github/workflows/pages.yml` on every push that touches `site/`.
 Pages can only serve `/` or `/docs` from a branch, so the folder is uploaded as
-an artifact instead. The custom domain is already registered with GitHub and
-`site/CNAME` is in place — the only missing piece is the DNS record.
+an artifact instead.
 
-- [ ] Add the DNS record at IONOS: **CNAME**, host `chat-analyzer`, value
-      `debajyotisaikia.github.io`. No A record, no trailing content.
-- [ ] Once it resolves, turn on HTTPS enforcement:
+**Live at http://chat-analyzer.deb0.com/** — the IONOS CNAME
+(`chat-analyzer` → `debajyotisaikia.github.io`) resolves from Cloudflare,
+Google, Quad9 and OpenDNS, and the site returns 200.
+
+- [ ] Turn on HTTPS once GitHub issues the certificate. It currently answers
+      `The certificate does not exist yet (404)` because its own DNS checker is
+      still holding the `NXDOMAIN` it cached before the record existed. That
+      clears by itself, usually within the hour. Then:
       `gh api -X PUT repos/DebajyotiSaikia/copilot-prompt-analyzer/pages -F https_enforced=true`
-      GitHub issues the certificate automatically, which can take up to an hour
-      after the record propagates.
 
 ## 2. Nice to have
 
