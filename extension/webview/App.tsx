@@ -3,6 +3,7 @@ import * as React from "react";
 import type {
   AnalyzerSettings,
   Filter,
+  PromptMode,
   PromptRecord,
   ReportId,
   Snapshot,
@@ -137,6 +138,8 @@ export function App(): JSX.Element {
 
   const [studioArea, setStudioArea] = React.useState<string | null>(null);
   const [studioExtra, setStudioExtra] = React.useState("");
+  // Portable is the default: a prompt welded to one repository cannot be reused.
+  const [promptMode, setPromptMode] = React.useState<PromptMode>("portable");
   const [streamedPrompts, setStreamedPrompts] = React.useState<Record<string, string>>({});
   const [generatingArea, setGeneratingArea] = React.useState<string | null>(null);
 
@@ -373,7 +376,11 @@ export function App(): JSX.Element {
     // estimateKey collapses the id list into one dependency
   }, [estimateKey, snapshot.settings.contextTokens, snapshot.settings.modelId]);
 
-  const runGenerate = (areaId: string, extra: string): void => {
+  const runGenerate = (
+    areaId: string,
+    extra: string,
+    mode: PromptMode
+  ): void => {
     const bucket = buckets.find((candidate) => candidate.area.id === areaId);
     if (!bucket) {
       return;
@@ -384,6 +391,7 @@ export function App(): JSX.Element {
       areaLabel: bucket.area.label,
       promptIds: bucket.prompts.map((prompt) => prompt.id),
       extra,
+      mode,
     });
   };
 
@@ -391,7 +399,16 @@ export function App(): JSX.Element {
     setStudioArea(areaId);
     setStudioExtra("");
     if (!snapshot.generated[areaId]) {
-      runGenerate(areaId, "");
+      runGenerate(areaId, "", promptMode);
+    }
+  };
+
+  // Switching style is only meaningful if it rebuilds; the two shapes are not
+  // two views of one document.
+  const changePromptMode = (next: PromptMode): void => {
+    setPromptMode(next);
+    if (studioArea && next !== (snapshot.generated[studioArea]?.mode ?? next)) {
+      runGenerate(studioArea, studioExtra, next);
     }
   };
 
@@ -669,7 +686,13 @@ export function App(): JSX.Element {
           title="Working prompt"
           meta={
             snapshot.generated[studioArea] && generatingArea !== studioArea
-              ? `Built from ${snapshot.generated[studioArea]!.sampledCount} of ${
+              ? `${
+                  snapshot.generated[studioArea]!.mode === "project"
+                    ? "Project-anchored"
+                    : "Portable"
+                } · built from ${
+                  snapshot.generated[studioArea]!.sampledCount
+                } of ${
                   snapshot.generated[studioArea]!.sourceCount
                 } requests · ${new Date(
                   snapshot.generated[studioArea]!.generatedAt
@@ -686,6 +709,24 @@ export function App(): JSX.Element {
             placeholder:
               "Optional steer, e.g. target a fresh Next.js project, or keep it under 40 lines",
             onChange: setStudioExtra,
+          }}
+          modes={{
+            value: promptMode,
+            onChange: (value) => changePromptMode(value as PromptMode),
+            options: [
+              {
+                value: "portable",
+                label: "Portable",
+                title:
+                  "Rules only, no project names — drop it into any repository, including one that does not exist yet",
+              },
+              {
+                value: "project",
+                label: "Project-anchored",
+                title:
+                  "Also pins the stack, services and file layout seen in these requests",
+              },
+            ],
           }}
           saveOptions={[
             {
@@ -704,8 +745,14 @@ export function App(): JSX.Element {
             <>
               <p>
                 This distils every request you made in this area into one reusable
-                prompt — requirements, conventions, the corrections you had to make,
-                and a definition of done.
+                prompt — the rules, the conventions, the corrections you had to
+                make, and a definition of done.
+              </p>
+              <p>
+                <strong>Portable</strong> strips out project names so the result
+                applies to any repository, including one you have not started.{" "}
+                <strong>Project-anchored</strong> keeps the stack and file layout
+                as well.
               </p>
               <p className="hint">
                 Filters apply: only the{" "}
@@ -716,7 +763,7 @@ export function App(): JSX.Element {
           }
           estimate={estimate}
           onGenerate={() => {
-            runGenerate(studioArea, studioExtra);
+            runGenerate(studioArea, studioExtra, promptMode);
             // The steer applies to this run only; leaving it in place makes the
             // next Regenerate silently repeat an instruction the user forgot about.
             setStudioExtra("");

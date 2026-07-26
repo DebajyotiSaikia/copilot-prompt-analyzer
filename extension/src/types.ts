@@ -58,6 +58,18 @@ export interface Taxonomy {
   instruction: string | null;
 }
 
+/**
+ * How a working prompt should be written.
+ *
+ * `portable` keeps only what transfers: the rules, corrections and standards.
+ * It names no project, so it can be dropped into any repository, including one
+ * that does not exist yet.
+ *
+ * `project` additionally pins the prompt to the stack, services and file layout
+ * seen in the requests. Useful as a spec for continuing that specific work.
+ */
+export type PromptMode = "portable" | "project";
+
 /** A reusable master prompt distilled from every request made within one area. */
 export interface GeneratedPrompt {
   areaId: string;
@@ -68,6 +80,7 @@ export interface GeneratedPrompt {
   sourceCount: number;
   sampledCount: number;
   extraInstruction: string | null;
+  mode: PromptMode;
 }
 
 export type SaveFormat = "prompt" | "instructions" | "markdown";
@@ -182,7 +195,8 @@ export interface AskContext {
 export type InboundMessage =
   | { type: "ready" }
   | { type: "rescan" }
-  | { type: "classify"; force: boolean }  | { type: "regroup"; instruction: string }
+  | { type: "classify"; force: boolean }
+  | { type: "regroup"; instruction: string }
   | { type: "resetTaxonomy" }
   | { type: "ask"; requestId: string; question: string; context: AskContext }
   | { type: "cancelAsk" }
@@ -192,6 +206,7 @@ export type InboundMessage =
       areaLabel: string;
       promptIds: string[];
       extra: string;
+      mode: PromptMode;
     }
   | { type: "cancelGenerate" }
   | { type: "savePrompt"; areaId: string; format: SaveFormat }

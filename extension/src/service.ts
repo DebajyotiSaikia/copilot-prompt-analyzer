@@ -43,6 +43,7 @@ import type {
   InboundMessage,
   ModelInfo,
   OutboundMessage,
+  PromptMode,
   PromptRecord,
   ReportId,
   SaveFormat,
@@ -74,7 +75,10 @@ export class AnalyzerService {
   private activeModelInfo: ModelInfo | null = null;
   private probingModel: string | null = null;
   private demoMode = false;
-  private demoClassifications: Record<string, import("./types").Classification> = {};
+  private demoClassifications: Record<
+    string,
+    import("./types").Classification
+  > = {};
   private failures: string[] = [];
 
   constructor(
@@ -170,8 +174,13 @@ export class AnalyzerService {
   }
 
   /** Classifications for whichever corpus is currently loaded. */
-  private get activeClassifications(): Record<string, import("./types").Classification> {
-    return this.demoMode ? this.demoClassifications : this.store.classifications;
+  private get activeClassifications(): Record<
+    string,
+    import("./types").Classification
+  > {
+    return this.demoMode
+      ? this.demoClassifications
+      : this.store.classifications;
   }
 
   /** Distinct prompt texts in the active corpus. */
@@ -184,7 +193,10 @@ export class AnalyzerService {
    * run for minutes on a large corpus, so anything beyond a trivial batch is
    * confirmed with the actual numbers rather than started silently.
    */
-  private async confirmClassify(pending: number, force: boolean): Promise<boolean> {
+  private async confirmClassify(
+    pending: number,
+    force: boolean
+  ): Promise<boolean> {
     const batchSize = Math.max(
       1,
       vscode.workspace
@@ -276,7 +288,9 @@ export class AnalyzerService {
           // A level that is no longer supported must not stay selected.
           const current = this.store.settings.reasoningLevel;
           if (current && !result.reasoningLevels.includes(current)) {
-            applySettings(await this.store.setSettings({ reasoningLevel: null }));
+            applySettings(
+              await this.store.setSettings({ reasoningLevel: null })
+            );
           }
 
           this.toast(
@@ -341,7 +355,9 @@ export class AnalyzerService {
     this.scanning = (async () => {
       this.busy(true, "Scanning chat history…", 0);
       try {
-        const cache = await ScanCache.open(this.context.globalStorageUri.fsPath);
+        const cache = await ScanCache.open(
+          this.context.globalStorageUri.fsPath
+        );
         const result = await scanChatHistory(this.userDirs(), {
           cache,
           onProgress: (done, total) =>
@@ -572,7 +588,8 @@ export class AnalyzerService {
     areaId: string,
     areaLabel: string,
     promptIds: string[],
-    extra: string
+    extra: string,
+    mode: PromptMode
   ): Promise<void> {
     const area =
       this.store.taxonomy.areas.find((candidate) => candidate.id === areaId) ??
@@ -591,7 +608,10 @@ export class AnalyzerService {
     const tokens = new vscode.CancellationTokenSource();
     this.generateTokens = tokens;
 
-    void source.postMessage({ type: "promptStart", areaId } satisfies OutboundMessage);
+    void source.postMessage({
+      type: "promptStart",
+      areaId,
+    } satisfies OutboundMessage);
     let markdown = "";
     try {
       for await (const chunk of generateAreaPrompt(
@@ -599,6 +619,7 @@ export class AnalyzerService {
         scoped,
         this.activeClassifications,
         extraInstruction,
+        mode,
         tokens.token
       )) {
         if (tokens.token.isCancellationRequested) {
@@ -621,6 +642,7 @@ export class AnalyzerService {
           sourceCount: scoped.length,
           sampledCount: await sampledCount(scoped, this.activeClassifications),
           extraInstruction,
+          mode,
         });
         this.sendSnapshot();
       }
@@ -634,7 +656,10 @@ export class AnalyzerService {
             }`
       );
     } finally {
-      void source.postMessage({ type: "promptEnd", areaId } satisfies OutboundMessage);
+      void source.postMessage({
+        type: "promptEnd",
+        areaId,
+      } satisfies OutboundMessage);
       if (this.generateTokens === tokens) {
         this.generateTokens = undefined;
       }
@@ -658,11 +683,14 @@ export class AnalyzerService {
 
     const wanted = new Set(promptIds);
     const scoped = this.prompts.filter((prompt) => wanted.has(prompt.id));
-    const meta = `${scoped.length.toLocaleString()} prompts · ${new Set(
-      scoped.map((prompt) => prompt.workspaceName)
-    ).size} projects`;
+    const meta = `${scoped.length.toLocaleString()} prompts · ${
+      new Set(scoped.map((prompt) => prompt.workspaceName)).size
+    } projects`;
 
-    const persist = async (markdown: string, modelName: string | null): Promise<void> => {
+    const persist = async (
+      markdown: string,
+      modelName: string | null
+    ): Promise<void> => {
       if (!markdown.trim()) {
         return;
       }
@@ -678,7 +706,10 @@ export class AnalyzerService {
       this.sendSnapshot();
     };
 
-    void source.postMessage({ type: "reportStart", reportId } satisfies OutboundMessage);
+    void source.postMessage({
+      type: "reportStart",
+      reportId,
+    } satisfies OutboundMessage);
 
     if (spec.local) {
       try {
@@ -700,7 +731,10 @@ export class AnalyzerService {
           `Report failed: ${error instanceof Error ? error.message : String(error)}`
         );
       } finally {
-        void source.postMessage({ type: "reportEnd", reportId } satisfies OutboundMessage);
+        void source.postMessage({
+          type: "reportEnd",
+          reportId,
+        } satisfies OutboundMessage);
       }
       return;
     }
@@ -712,7 +746,9 @@ export class AnalyzerService {
     let markdown = "";
     try {
       const existing =
-        reportId === "instructions" ? await this.readWorkspaceInstructions() : null;
+        reportId === "instructions"
+          ? await this.readWorkspaceInstructions()
+          : null;
 
       const stream =
         reportId === "instructions"
@@ -723,10 +759,22 @@ export class AnalyzerService {
               tokens.token
             )
           : reportId === "corrections"
-            ? generateCorrectionReport(scoped, this.activeClassifications, tokens.token)
+            ? generateCorrectionReport(
+                scoped,
+                this.activeClassifications,
+                tokens.token
+              )
             : reportId === "projects"
-              ? generateProjectSpecs(scoped, this.activeClassifications, tokens.token)
-              : generateDecisionLog(scoped, this.activeClassifications, tokens.token);
+              ? generateProjectSpecs(
+                  scoped,
+                  this.activeClassifications,
+                  tokens.token
+                )
+              : generateDecisionLog(
+                  scoped,
+                  this.activeClassifications,
+                  tokens.token
+                );
 
       for await (const chunk of stream) {
         if (tokens.token.isCancellationRequested) {
@@ -739,7 +787,10 @@ export class AnalyzerService {
           text: chunk,
         } satisfies OutboundMessage);
       }
-      await persist(markdown, (await resolveModel().catch(() => null))?.name ?? null);
+      await persist(
+        markdown,
+        (await resolveModel().catch(() => null))?.name ?? null
+      );
     } catch (error) {
       this.toast(
         "error",
@@ -748,7 +799,10 @@ export class AnalyzerService {
           : `Report failed: ${error instanceof Error ? error.message : String(error)}`
       );
     } finally {
-      void source.postMessage({ type: "reportEnd", reportId } satisfies OutboundMessage);
+      void source.postMessage({
+        type: "reportEnd",
+        reportId,
+      } satisfies OutboundMessage);
       if (this.generateTokens === tokens) {
         this.generateTokens = undefined;
       }
@@ -810,9 +864,15 @@ export class AnalyzerService {
     if (!folder) {
       return null;
     }
-    const uri = vscode.Uri.joinPath(folder.uri, ".github", "copilot-instructions.md");
+    const uri = vscode.Uri.joinPath(
+      folder.uri,
+      ".github",
+      "copilot-instructions.md"
+    );
     try {
-      return Buffer.from(await vscode.workspace.fs.readFile(uri)).toString("utf8");
+      return Buffer.from(await vscode.workspace.fs.readFile(uri)).toString(
+        "utf8"
+      );
     } catch {
       return null;
     }
@@ -831,7 +891,10 @@ export class AnalyzerService {
     const tokens = new vscode.CancellationTokenSource();
     this.askTokens.set(source, tokens);
 
-    void source.postMessage({ type: "answerStart", requestId } satisfies OutboundMessage);
+    void source.postMessage({
+      type: "answerStart",
+      requestId,
+    } satisfies OutboundMessage);
     try {
       for await (const chunk of rewritePrompt(
         prompt,
@@ -854,7 +917,10 @@ export class AnalyzerService {
         text: `\n\n**Error:** ${error instanceof Error ? error.message : String(error)}`,
       } satisfies OutboundMessage);
     } finally {
-      void source.postMessage({ type: "answerEnd", requestId } satisfies OutboundMessage);
+      void source.postMessage({
+        type: "answerEnd",
+        requestId,
+      } satisfies OutboundMessage);
       if (this.askTokens.get(source) === tokens) {
         this.askTokens.delete(source);
       }
@@ -910,9 +976,14 @@ export class AnalyzerService {
       }
     }
 
-    const parent = uri.with({ path: uri.path.slice(0, uri.path.lastIndexOf("/")) });
+    const parent = uri.with({
+      path: uri.path.slice(0, uri.path.lastIndexOf("/")),
+    });
     await vscode.workspace.fs.createDirectory(parent);
-    await vscode.workspace.fs.writeFile(uri, Buffer.from(target.contents, "utf8"));
+    await vscode.workspace.fs.writeFile(
+      uri,
+      Buffer.from(target.contents, "utf8")
+    );
     const document = await vscode.workspace.openTextDocument(uri);
     await vscode.window.showTextDocument(document, { preview: false });
     this.toast("info", `Saved ${target.relativePath}.`);
@@ -927,7 +998,10 @@ export class AnalyzerService {
     await this.writeDocument(generated.areaLabel, generated.markdown, format);
   }
 
-  private async saveReport(reportId: ReportId, format: SaveFormat): Promise<void> {
+  private async saveReport(
+    reportId: ReportId,
+    format: SaveFormat
+  ): Promise<void> {
     const report = this.store.reportFor(reportId);
     if (!report) {
       this.toast("warn", "Generate the report first.");
@@ -1027,7 +1101,8 @@ export class AnalyzerService {
           message.areaId,
           message.areaLabel,
           message.promptIds,
-          message.extra
+          message.extra,
+          message.mode
         );
         return;
       case "cancelGenerate":
@@ -1067,7 +1142,11 @@ export class AnalyzerService {
         await this.rewriteOne(source, message.requestId, message.promptId);
         return;
       case "estimateContext":
-        await this.estimateContext(source, message.estimateId, message.promptIds);
+        await this.estimateContext(
+          source,
+          message.estimateId,
+          message.promptIds
+        );
         return;
       case "openSession":
         await this.openSession(message.sessionId);

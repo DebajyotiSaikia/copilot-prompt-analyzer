@@ -5,23 +5,71 @@ import { contextBudget, resolveModel, streamText } from "./lm";
 import type {
   Area,
   Classification,
+  PromptMode,
   PromptRecord,
   ReportId,
   SaveFormat,
 } from "./types";
 
-const SYSTEM = [
+const COMMON = [
   "You are a senior prompt engineer.",
   "You are given the complete set of requests one developer made to an AI coding assistant within a single topic area, in chronological order.",
-  "Your job is to distil them into ONE reusable master prompt that would let an assistant satisfy this developer's requirements for this area correctly on the first attempt.",
-  "Work only from the evidence. Never invent a requirement, technology, file path or standard that does not appear in the requests.",
+  "Work only from the evidence. Never invent a requirement, technology or standard that does not appear in the requests.",
   "Where the developer corrected or contradicted the assistant, encode the correction as an explicit rule — those are the highest-value lines in the output.",
-  "Be specific and concrete. Name the actual frameworks, services, files and conventions you observe. Generic advice is worthless here.",
   "Address the assistant in the second person, imperative mood.",
   "Return GitHub-flavoured markdown only. No preamble, no explanation of what you did, no code fences around the whole document.",
-].join(" ");
+];
 
-function outline(area: Area): string {
+/**
+ * The portable prompt is the point of the product: the developer wants the
+ * lessons, not a museum of the projects that taught them. Anything that only
+ * makes sense inside one repository has to be either generalised or dropped.
+ */
+const SYSTEM: Record<PromptMode, string> = {
+  portable: [
+    ...COMMON,
+    "Your job is to distil these requests into ONE reusable prompt that encodes how this developer wants an assistant to work — and that stays correct on a project the developer has not started yet.",
+    "CRITICAL: the output must be portable. Name no project, repository, workspace, company, customer, file path or service instance from the evidence.",
+    "Generalise every specific instance into the rule behind it. 'Do not put business logic in the storefront checkout controller' becomes 'Keep business logic out of controllers.'",
+    "Keep a technology name only where the rule is genuinely about that technology and the developer uses it habitually across projects. Otherwise state the rule without it.",
+    "Prefer rules that are checkable. A rule the assistant cannot verify it has followed is worth little.",
+    "If a requirement appears once and is clearly incidental to one codebase, leave it out. Repetition and correction are the signals worth keeping.",
+  ].join(" "),
+  project: [
+    ...COMMON,
+    "Your job is to distil these requests into ONE master prompt that would let an assistant satisfy this developer's requirements for this area, on these projects, correctly on the first attempt.",
+    "Be specific and concrete. Name the actual frameworks, services, files and conventions you observe. Generic advice is worthless here.",
+  ].join(" "),
+};
+
+function outline(area: Area, mode: PromptMode): string {
+  if (mode === "portable") {
+    return [
+      `# ${area.label} — Working Prompt`,
+      "",
+      "## Role",
+      "One paragraph: what the assistant is being asked to do whenever it works in this area. No project names.",
+      "",
+      "## Rules",
+      "The standing requirements, numbered, specific and checkable. This is the bulk of the document. Each rule must make sense in a repository the assistant has never seen.",
+      "",
+      "## Conventions",
+      "How this developer wants work done: style, structure, tooling, communication, review. Bullets.",
+      "",
+      "## Do not",
+      "Explicit prohibitions mined from every [CORRECTION] and from anything the developer rejected. Bullets.",
+      "",
+      "## Definition of done",
+      "The checks to run before claiming completion. Checklist.",
+      "",
+      "## Ask me first",
+      "Decisions this developer has historically wanted to make themselves rather than have guessed. Bullets. Omit the section if there is no evidence for it.",
+      "",
+      "## Habitual stack",
+      "Only technologies that recur across MORE THAN ONE project, as a plain list, so the assistant can assume them as defaults. Omit the section entirely if the evidence covers a single project.",
+    ].join("\n");
+  }
+
   return [
     `# ${area.label} — Working Prompt`,
     "",
@@ -54,6 +102,7 @@ export async function* generateAreaPrompt(
   prompts: PromptRecord[],
   classifications: Record<string, Classification>,
   extraInstruction: string | null,
+  mode: PromptMode,
   token: vscode.CancellationToken
 ): AsyncGenerator<string> {
   if (prompts.length === 0) {
@@ -67,7 +116,10 @@ export async function* generateAreaPrompt(
 
   const request = [
     `Area: ${area.label} — ${area.description}`,
-    `Projects involved: ${evidence.workspaces.join(", ")}`,
+    // Naming the projects in portable mode invites the model to name them back.
+    mode === "project"
+      ? `Projects involved: ${evidence.workspaces.join(", ")}`
+      : `Distinct projects represented: ${evidence.workspaces.length}`,
     evidence.tools.length
       ? `Tools the assistant used most here: ${evidence.tools.join(", ")}`
       : "",
@@ -85,16 +137,19 @@ export async function* generateAreaPrompt(
     "",
     "Produce the master prompt using exactly this outline:",
     "",
-    outline(area),
+    outline(area, mode),
     "",
     "Drop any section you have no evidence for rather than padding it.",
+    mode === "portable"
+      ? "Before you answer, re-read your draft and delete or generalise every project, repository, service and file-path name that survived from the evidence."
+      : "",
   ]
     .filter(Boolean)
     .join("\n");
 
   yield* streamText(
     [
-      vscode.LanguageModelChatMessage.User(SYSTEM),
+      vscode.LanguageModelChatMessage.User(SYSTEM[mode]),
       vscode.LanguageModelChatMessage.User(request),
     ],
     token

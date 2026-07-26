@@ -20,11 +20,14 @@ key, no account, no telemetry.
 
 Open the **Areas** view, pick an area — auth, database, UI — and press
 **Build working prompt**. It reads every request you ever made in that area and
-produces a single document:
+produces a single document.
 
-- **Objective** — what the assistant is being asked to do in your world
-- **Context** — the projects, stack and services that actually recur
-- **Requirements** — the concrete repeated asks, numbered and testable
+The default style is **Portable**: it generalises every specific instance into
+the rule behind it and names no repository, service or file path, so the result
+applies to any project including one you have not started yet.
+
+- **Role** — what the assistant is being asked to do whenever it works here
+- **Rules** — the standing requirements, numbered and checkable
 - **Conventions** — how you want work done
 - **Do not** — mined from the corrections you had to issue
 - **Definition of done** — the checks to run before claiming completion
@@ -33,6 +36,9 @@ produces a single document:
 The **Do not** section is usually the surprise. Those rules came from every time
 you typed "no, not like that" and then watched the reason evaporate when the
 session closed.
+
+Switch to **Project-anchored** when you want the opposite: the stack, services
+and file layout of the work these requests came from, as a spec for continuing it.
 
 Save it and it becomes something you use tomorrow:
 

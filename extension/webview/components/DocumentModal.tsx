@@ -10,6 +10,12 @@ export interface SaveOption {
   title?: string;
 }
 
+export interface ModeOption<T extends string> {
+  value: T;
+  label: string;
+  title: string;
+}
+
 interface Props {
   eyebrow: string;
   title: string;
@@ -23,6 +29,12 @@ interface Props {
   extra?: {
     value: string;
     placeholder: string;
+    onChange: (value: string) => void;
+  };
+  /** hidden for reports, which have only one shape */
+  modes?: {
+    value: string;
+    options: ModeOption<string>[];
     onChange: (value: string) => void;
   };
   saveOptions: SaveOption[];
@@ -46,6 +58,7 @@ export function DocumentModal({
   hasStored,
   generateLabel,
   extra,
+  modes,
   saveOptions,
   emptyState,
   estimate,
@@ -148,6 +161,26 @@ export function DocumentModal({
         </div>
 
         <footer className="studio-foot">
+          {modes ? (
+            <div className="studio-modes" role="radiogroup" aria-label="Prompt style">
+              {modes.options.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={modes.value === option.value}
+                  className={`mode-chip${
+                    modes.value === option.value ? " is-active" : ""
+                  }`}
+                  title={option.title}
+                  onClick={() => modes.onChange(option.value)}
+                  disabled={generating}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
           {extra ? (
             <textarea
               rows={2}

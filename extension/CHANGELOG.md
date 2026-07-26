@@ -2,6 +2,17 @@
 
 ## 0.2.0
 
+### Changed
+
+- **Working prompts are portable by default.** The generator used to be told to
+  name the actual projects, services and files it saw, which produced a good
+  spec for continuing that work and a useless prompt anywhere else. There are now
+  two styles: **Portable**, which generalises every instance into the rule behind
+  it and names no repository, service or path, so it can be dropped into a project
+  that does not exist yet; and **Project-anchored**, the previous behaviour. Each
+  style has its own outline — portable leads with Role and Rules, project-anchored
+  with Objective and Context.
+
 ### Fixed
 
 - **Markdown tables rendered as raw pipes.** The webview renderer had no table
