@@ -5,124 +5,72 @@ Only outstanding work is listed. Completed sections have been removed; see
 
 ## Status
 
-**v0.2.0 — built, packaged, installed locally, demo recorded.**
+**v0.2.0 — live on the Marketplace.**
+
+https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer
 
 Corpus after the JSONL fix: **3,536 prompts / 85 sessions / 2025-09-16 → 2026-07-26**,
 525k words across 15+ projects. Cold scan ~60s, cached rescan ~1.6s, resumed
 append ~0.1s. Cache 3.4 MB gzipped.
 
-Only publishing and hosting are left, and both are blocked on decisions only you
-can make — see sections 2 and 3.
+Shipping future versions is now one command:
+
+```
+cd extension
+npx vsce publish --azure-credential --packagePath .\copilot-prompt-analyzer-<version>.vsix
+```
 
 ---
 
-## 1. Record the demo — done
+## 1. Ship the homepage
 
-Recorded against the real extension in a real VS Code window, driven over the
-Chrome DevTools Protocol (`extension/demo/`), so the footage is the product and
-not a mock-up. One command rebuilds everything:
+`site/` is static, dependency-free and self-contained, so any host works
+unchanged. `site/CNAME` already targets `chat-analyzer.deb0.com`; delete it if
+you serve the folder from somewhere other than GitHub Pages.
 
-```
-node demo/capture.mjs --video
-```
-
-- [x] Scratch profile in light mode, analyzer sidebar in place of the explorer,
-      chat pane and context menus kept off camera
-- [x] 1920×1080, 96 s, narrated — `site/demo.mp4`
-- [x] Voiceover read by **Azure AI Speech**, voice `en-US-Ava:DragonHDLatestNeural`
-      (`demo/narration.mjs` + `demo/tts-azure.mjs`), with the offline Windows
-      engine as a fallback when no key is configured. Each beat holds until its
-      line finishes — timed off the frame counter, not the wall clock — so the
-      picture never runs ahead of the words.
-- [x] `site/demo.gif` — silent 22 s opening for the README
-- [x] `shot-areas.png`, `shot-insights.png`, `shot-report.png` for the gallery
-
-The speech key lives in `extension/demo/.azure-speech-key`, which is git-ignored;
-`AZURE_SPEECH_KEY` or `AZURE_SPEECH_KEY_FILE` override it. Region defaults to
-`eastus2`, voice to `AZURE_SPEECH_VOICE`.
-
-Re-recording after a UI change needs no manual steps; editing `narration.mjs`
-re-synthesises the lines and re-times the beats automatically.
-
-## 2. Publish
-
-Author **Debajyoti Saikia**, repo
-[DebajyotiSaikia/copilot-chat-analyzer](https://github.com/DebajyotiSaikia/copilot-chat-analyzer),
-homepage `https://chat-analyzer.deb0.com/`. All of that is wired in and pushed.
-
-- [x] Copyright holder in `extension/LICENSE`
-- [x] `git init`, initial commit, pushed to `main`
-- [x] `author` / `homepage` / `repository` / `bugs` in `package.json`;
-      `"private": true` removed
-- [x] Demo GIF in `extension/README.md` as an absolute HTTPS URL
-      (`raw.githubusercontent.com/.../main/site/demo.gif`) — resolves as soon as
-      the repo is public
-- [x] Publisher wired as `DebajyotiSaikia` in `extension/package.json` and
-      `site/index.html`. Extension identity:
-      `DebajyotiSaikia.copilot-prompt-analyzer`
-- [x] GitHub repo is public; the README GIF resolves over HTTPS (verified 200)
-- [x] Marketplace publisher created —
-      `marketplace.visualstudio.com/manage/publishers/debajyotisaikia`
-      (publisherId `4e44f280-…`, website and logo set, domain unverified)
-- [x] Renamed to `copilot-prompt-analyzer` — `copilot-chat-analyzer` is taken by
-      an unrelated extension, `wudandong.copilot-chat-analyzer`, a Copilot
-      call-chain visualiser. Marketplace extension names are globally unique.
-      Demo re-recorded because the voiceover says the product name aloud.
-- [ ] Publish. **Blocked on a Marketplace identity mismatch**, not on the code.
-      `vsce publish --azure-credential` authenticates fine, but the principal the
-      Azure CLI supplies (`a91a1e6b-…`, Entra tenant `2b0a77cc…`, "Default
-      Directory") has no rights on publisher `/DebajyotiSaikia`, which was
-      created while the portal was in the **Microsoft Account** directory.
-      Every programmatic route is closed, and each was tested rather than
-      assumed:
-      - `az` cannot hold the Microsoft Account identity at all — ARM refuses the
-        `/consumers` endpoint (`AADSTS9002332`). WAM sign-in and device-code
-        sign-in both fail. Structural, not a machine problem.
-      - Azure DevOps offers only `Default Directory`, so the organisation
-        `debajyotisaikia` and any token minted in it carry the rejected
-        principal. Tested with a real `vso.gallery_manage` all-organisations
-        PAT: identical denial. The token was revoked immediately.
-      - Creating a second publisher from the API is refused on purpose:
-        `InvalidReCaptchaTokenException`, "Creating a publisher from command
-        line is not supported".
-      - **Fix, browser only**: publisher page → **Members** → add
-        `debajyoti.saikia@yahoo.co.in` from **Default Directory** as **Owner**.
-        After that `vsce publish --azure-credential` works with no PAT to store
-        or rotate, for this version and every future one.
-      - Fallback that ships today but leaves the CLI blocked: upload
-        `extension/copilot-prompt-analyzer-0.2.0.vsix` through **New extension →
-        Visual Studio Code** on the publisher page.
-- [ ] Move the `v0.2.0` tag onto the commit that actually ships
-- [ ] Optionally mirror to Open VSX for VSCodium users
-
-## 3. Ship the homepage
-
-`site/` is static, dependency-free and self-contained, so any host works unchanged.
-
-- [x] Host decided: `chat-analyzer.deb0.com`. `site/CNAME` is in place for GitHub
-      Pages; delete it if you serve the folder from somewhere else.
 - [ ] Deploy — for Pages: repo → Settings → Pages → deploy from `main`, folder
       `/site`, then point a `chat-analyzer` CNAME at `debajyotisaikia.github.io`
-- [x] `var PUBLISHER` set in `site/index.html`; it fills every install link and
-      the `ext install` snippet
 
-## 4. Backlog
+## 2. Nice to have
 
-Nothing outstanding. The previous entries are done:
+- [ ] Mirror to Open VSX so VSCodium and Cursor users can install it. Separate
+      account at `open-vsx.org` with its own token; `npx ovsx publish` takes the
+      same VSIX.
+- [ ] Verify `deb0.com` on the publisher profile for the verified badge. Needs a
+      DNS TXT record; cosmetic only, does not affect publishing.
+- [ ] Rename the GitHub repo to `copilot-prompt-analyzer` to match the extension.
+      GitHub redirects the old URLs, but `repository` / `bugs` in `package.json`
+      and the README image URL would want updating in the same change.
 
-- Markdown tables render in reports and working prompts; the quality, paste
-  hygiene and decision reports are table-heavy and were showing raw pipes.
-- Incremental JSONL resume from a byte offset, verified byte-identical to a full
-  re-parse by growing a truncated log and comparing.
-- Scan cache gzipped, 13 MB → 3.4 MB.
-- Scan failures surfaced as an expandable banner instead of a toast count.
-- Signed-out-of-Copilot path exercised across all seven language-model entry
-  points against a stubbed API; every one degrades to an actionable message.
-
-## 5. Known gap
+## 3. Known gap in the demo
 
 The scratch profile used for recording is not signed in to Copilot, so the four
 AI-backed beats — build a working prompt, Ask, and the three model-written
 reports — are not on camera. `node demo/capture.mjs --attach` drives an
 already-running signed-in VS Code instead, but that instance has to be started
 with `--remote-debugging-port=9333`.
+
+## 4. Things worth not rediscovering
+
+**Publisher identity.** The Marketplace publisher `DebajyotiSaikia` was created
+under the **Microsoft Account** directory, which is a different principal from
+the same email in the Entra tenant. `az` can never hold the Microsoft Account
+one — ARM refuses the `/consumers` endpoint (`AADSTS9002332`), and both WAM and
+device-code sign-in fail. Azure DevOps exposes only `Default Directory`, so
+tokens minted there carry the Entra principal, and creating a second publisher
+from the API is refused by design (`InvalidReCaptchaTokenException`). The fix
+was adding the Entra guest identity
+`debajyoti.saikia_yahoo.co.in#EXT#@debajyotisaikiayahooco.onmicrosoft.com` to
+the publisher's members. Do not remove it, or CLI publishing breaks.
+
+**Extension names are globally unique**, not scoped per publisher.
+`copilot-chat-analyzer` belongs to `wudandong` — an unrelated Copilot call-chain
+visualiser — which is why this ships as `copilot-prompt-analyzer`.
+
+**The narration says the product name aloud**, so any rename means re-recording
+the demo, not just editing text.
+
+**Secrets.** `extension/demo/.azure-speech-key` is git-ignored; `AZURE_SPEECH_KEY`
+or `AZURE_SPEECH_KEY_FILE` override it. Run `node scripts/secret-scan.mjs` before
+every release — it reads `git ls-files`, so it only ever checks what would
+actually be published.
