@@ -60,19 +60,14 @@ homepage `https://chat-analyzer.deb0.com/`. All of that is wired in and pushed.
 - [x] Publisher wired as `DebajyotiSaikia` in `extension/package.json` and
       `site/index.html`. Extension identity:
       `DebajyotiSaikia.copilot-chat-analyzer`
-- [ ] **Make the GitHub repo public**, or the README image on the Marketplace
-      will 404
-- [ ] Create the publisher at `marketplace.visualstudio.com/manage`. There is no
-      API for this — `vsce create-publisher` was removed — so the portal form is
-      the only way. Only **Name** and **ID** are required; use ID
-      `DebajyotiSaikia` exactly, since the package is already built against it.
-      Optional fields worth filling: logo `extension/media/icon.png` (already
-      128×128), company website `https://deb0.com/`, source repository and
-      support both `https://github.com/DebajyotiSaikia/copilot-chat-analyzer`.
+- [x] GitHub repo is public; the README GIF resolves over HTTPS (verified 200)
+- [x] Marketplace publisher created —
+      `marketplace.visualstudio.com/manage/publishers/debajyotisaikia`
+- [x] `v0.2.0` tagged and pushed
 - [ ] Create an Azure DevOps PAT with **Marketplace → Manage** scope, then run
       `npx vsce login DebajyotiSaikia` and type it at the prompt. Never paste it
       into chat or a file.
-- [ ] `git tag v0.2.0`, push the tag, then `npx vsce publish`
+- [ ] `npx vsce publish` from `extension/`
 - [ ] Optionally mirror to Open VSX for VSCodium users
 
 ## 3. Ship the homepage
