@@ -117,8 +117,8 @@ what will be sent, before it is sent.
 
 ## Settings
 
-| Setting                              | Default       | Purpose                                                 |
-| ------------------------------------ | ------------- | ------------------------------------------------------- |
+| Setting                                | Default       | Purpose                                                 |
+| -------------------------------------- | ------------- | ------------------------------------------------------- |
 | `copilotPromptAnalyzer.model`          | `gpt-4o-mini` | Fallback model family when no model is picked in the UI |
 | `copilotPromptAnalyzer.batchSize`      | `20`          | Prompts per classification request                      |
 | `copilotPromptAnalyzer.maxPromptChars` | `1200`        | Truncation applied before sending a prompt to the model |
