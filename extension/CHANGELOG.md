@@ -1,5 +1,16 @@
 # Change Log
 
+## 0.2.1
+
+### Fixed
+
+- Repository, issue and README image links pointed at `copilot-chat-analyzer`,
+  the repository's name before it was renamed to match the extension. GitHub
+  redirected them, but a redirect only holds until something else claims the old
+  name. They are now absolute and correct.
+- Homepage links to `https://chat-analyzer.deb0.com/`, which is live and serves
+  over HTTPS.
+
 ## 0.2.0
 
 ### Changed
