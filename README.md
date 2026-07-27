@@ -175,6 +175,19 @@ Two more are run by hand when `site/` changes:
 - `node scripts/make-icons.mjs` — regenerates the favicon, Apple touch icon,
   maskable icon and pinned-tab glyph from one SVG source
 
+And one that checks the deployed site rather than the working tree:
+
+- `node scripts/site-audit.mjs [origin]` — audits production against the six
+  things the site has to get right: Apple-compatible icons, the three-state
+  theme toggle, SEO and structured data, the legal pages, static rendering, and
+  the iPhone/iPad form factors. Defaults to `https://prompts.deb0.com`.
+
+  It reads colours and rendered text, both of which depend on the stylesheet
+  having been applied, so it waits for a non-transparent background before
+  measuring. Reading at `domcontentloaded` produces convincing nonsense —
+  a transparent body, or two strings of identical length that differ only in
+  case because `text-transform` had not landed yet.
+
 ### Things worth not rediscovering
 
 **Publisher identity.** The Marketplace publisher `DebajyotiSaikia` was created
