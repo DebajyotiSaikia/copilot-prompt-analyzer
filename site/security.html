@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Security — Copilot Prompt Analyzer</title>
+    <meta
+      name="description"
+      content="How Copilot Prompt Analyzer is built to keep your chat history local, the threats it defends against, and how to report a vulnerability responsibly."
+    />
+    <link rel="canonical" href="https://prompts.deb0.com/security.html" />
+    <meta name="author" content="Debajyoti Saikia" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1"
+    />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#0b0b14"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#ffffff"
+    />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Prompt Analyzer" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/mask-icon.svg" color="#7c3aed" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:site_name" content="Copilot Prompt Analyzer" />
+    <meta property="og:title" content="Security — Copilot Prompt Analyzer" />
+    <meta
+      property="og:description"
+      content="How the extension keeps your chat history local, and how to report a vulnerability responsibly."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://prompts.deb0.com/security.html" />
+    <meta
+      property="og:image"
+      content="https://prompts.deb0.com/shot-areas.png"
+    />
+    <meta property="og:image:width" content="1920" />
+    <meta property="og:image:height" content="1080" />
+    <meta
+      property="og:image:alt"
+      content="The analyzer grouping Copilot prompts into areas of work inside VS Code."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Security — Copilot Prompt Analyzer" />
+    <meta
+      name="twitter:description"
+      content="How the extension keeps your chat history local, and how to report a vulnerability responsibly."
+    />
+    <meta
+      name="twitter:image"
+      content="https://prompts.deb0.com/shot-areas.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="The analyzer grouping Copilot prompts into areas of work inside VS Code."
+    />
+
+    <link rel="stylesheet" href="/styles.css" />
+
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("cpa-theme");
+          if (t === "light" || t === "dark") {
+            document.documentElement.setAttribute("data-theme", t);
+          }
+        } catch (e) {
+          /* private mode; the CSS default is fine */
+        }
+      })();
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Security",
+        "url": "https://prompts.deb0.com/security.html",
+        "inLanguage": "en",
+        "dateModified": "2026-07-26",
+        "isPartOf": { "@id": "https://prompts.deb0.com/#website" },
+        "about": { "@id": "https://prompts.deb0.com/#app" },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://prompts.deb0.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Security",
+              "item": "https://prompts.deb0.com/security.html"
+            }
+          ]
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header class="nav">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Copilot Prompt Analyzer</span>
+      </a>
+      <nav aria-label="Primary">
+        <a href="/#what">What it does</a>
+        <a href="/#how">How it works</a>
+        <a href="/#privacy">Privacy</a>
+      </nav>
+      <div class="nav-end">
+        <fieldset class="theme-toggle">
+          <legend class="sr-only">Colour theme</legend>
+          <input
+            type="radio"
+            name="theme"
+            id="theme-system"
+            value="system"
+            checked
+          />
+          <label for="theme-system" title="Match system">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect
+                x="2.5"
+                y="4"
+                width="19"
+                height="13"
+                rx="2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M8 21h8"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span class="sr-only">Match system</span>
+          </label>
+          <input type="radio" name="theme" id="theme-light" value="light" />
+          <label for="theme-light" title="Light">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle
+                cx="12"
+                cy="12"
+                r="4.2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span class="sr-only">Light</span>
+          </label>
+          <input type="radio" name="theme" id="theme-dark" value="dark" />
+          <label for="theme-dark" title="Dark">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.2 8.2 0 1 0 10.2 10.2z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span class="sr-only">Dark</span>
+          </label>
+        </fieldset>
+        <a
+          class="btn btn-primary"
+          href="https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer"
+          >Install</a
+        >
+      </div>
+    </header>
+
+    <main>
+      <section class="page-head">
+        <div class="wrap">
+          <h1>Security</h1>
+          <p class="updated">Last updated 26 July 2026</p>
+        </div>
+      </section>
+
+      <section class="prose">
+        <div class="wrap">
+          <div class="callout">
+            <p>
+              <strong>Found a vulnerability?</strong> Please report it privately
+              through
+              <a
+                href="https://github.com/DebajyotiSaikia/copilot-prompt-analyzer/security/advisories/new"
+                rel="noopener"
+                >GitHub's private advisory form</a
+              >
+              rather than opening a public issue. If you would rather not use
+              GitHub, you can get in touch via the contact form on
+              <a href="https://deb0.com/">deb0.com</a>.
+            </p>
+          </div>
+
+          <h2>How the extension is built</h2>
+          <p>
+            The security posture follows from one decision: there is no server.
+            Nothing to breach, no credentials to leak, no database of anyone's
+            prompts.
+          </p>
+          <ul>
+            <li>
+              <strong>Local by default.</strong> Chat history is read from the
+              storage VS Code already keeps on your disk. Derived results are
+              cached in the extension's own storage on the same machine.
+            </li>
+            <li>
+              <strong>No network of our own.</strong> The extension makes no
+              HTTP requests. The only outbound traffic is the language-model
+              call VS Code makes on your behalf, through your own Copilot
+              entitlement.
+            </li>
+            <li>
+              <strong>No secrets.</strong> There is no API key, no token and no
+              account, so there is nothing to store or exfiltrate. The
+              repository is scanned on every commit to keep it that way.
+            </li>
+            <li>
+              <strong>Sandboxed UI.</strong> The interface is a VS Code webview
+              with a strict content security policy. Scripts are limited to the
+              bundled code, and the webview cannot reach the file system
+              directly.
+            </li>
+            <li>
+              <strong>No remote code.</strong> Everything ships inside the
+              extension package. Nothing is fetched, evaluated or updated at
+              runtime.
+            </li>
+            <li>
+              <strong>Auditable.</strong> The extension is MIT licensed and the
+              full source, including the exact code in every release, is
+              <a
+                href="https://github.com/DebajyotiSaikia/copilot-prompt-analyzer"
+                rel="noopener"
+                >public on GitHub</a
+              >.
+            </li>
+          </ul>
+
+          <h2>Things worth knowing</h2>
+          <p>
+            An honest security page names the sharp edges rather than only the
+            good parts.
+          </p>
+          <ul>
+            <li>
+              Your prompt history is sensitive. It can contain code, internal
+              paths, hostnames and anything you once pasted into a chat window.
+              The extension does not redact it, and neither do exports.
+            </li>
+            <li>
+              Features that call a model send prompt text to that model.
+              Filtering to one project before generating keeps the scope of a
+              request tight.
+            </li>
+            <li>
+              Generated prompts and instruction files are derived from real
+              chats. Review them before committing them to a shared repository.
+            </li>
+            <li>
+              Your history is stored unencrypted by VS Code itself. Anyone with
+              access to your user account can read it with or without this
+              extension; disk encryption is the right control for that.
+            </li>
+          </ul>
+
+          <h2>This website</h2>
+          <p>
+            prompts.deb0.com is static HTML served over HTTPS from GitHub Pages,
+            with HTTPS enforced. It has no cookies, no analytics, no third-party
+            requests and no user input of any kind. The single script on each
+            page reads and writes one colour-theme value in your browser's own
+            storage.
+          </p>
+
+          <h2>Reporting a vulnerability</h2>
+          <p>
+            Please report privately first, and give me a chance to ship a fix
+            before any public disclosure.
+          </p>
+          <ol>
+            <li>
+              Open a
+              <a
+                href="https://github.com/DebajyotiSaikia/copilot-prompt-analyzer/security/advisories/new"
+                rel="noopener"
+                >private security advisory</a
+              >
+              on the repository. This is the fastest route and keeps the report
+              confidential until a fix is out.
+            </li>
+            <li>
+              Include the version, the platform, what an attacker gains, and the
+              smallest set of steps that reproduces it.
+            </li>
+            <li>
+              Please do not open a public issue, post a proof of concept, or
+              test against anyone else's machine or data.
+            </li>
+          </ol>
+          <p>
+            This is a personal project maintained in spare time, so there is no
+            paid bounty and no guaranteed response window — but reports are read
+            and taken seriously, valid ones are fixed and released promptly, and
+            credit is given in the advisory unless you would rather stay
+            anonymous.
+          </p>
+
+          <h2>Supported versions</h2>
+          <p>
+            Fixes land on the latest release. The extension auto-updates through
+            the Marketplace, so staying current is the whole of the patch
+            policy. Earlier versions are not backported.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap">
+        <ul class="foot-links">
+          <li><a href="/privacy.html">Privacy</a></li>
+          <li><a href="/terms.html">Terms</a></li>
+          <li><a href="/security.html">Security</a></li>
+          <li>
+            <a href="https://github.com/DebajyotiSaikia/copilot-prompt-analyzer"
+              >Source</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer"
+              >Marketplace</a
+            >
+          </li>
+        </ul>
+        <p>
+          Copilot Prompt Analyzer — not affiliated with GitHub or Microsoft. MIT
+          licensed. Built by
+          <a href="https://deb0.com/">Debajyoti Saikia</a>.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var stored = null;
+        try {
+          stored = localStorage.getItem("cpa-theme");
+        } catch (e) {
+          /* private mode */
+        }
+        if (stored === "light" || stored === "dark") {
+          var pre = document.getElementById("theme-" + stored);
+          if (pre) {
+            pre.checked = true;
+          }
+        }
+        var radios = document.querySelectorAll('input[name="theme"]');
+        for (var i = 0; i < radios.length; i++) {
+          radios[i].addEventListener("change", function () {
+            try {
+              if (this.value === "system") {
+                root.removeAttribute("data-theme");
+                localStorage.removeItem("cpa-theme");
+              } else {
+                root.setAttribute("data-theme", this.value);
+                localStorage.setItem("cpa-theme", this.value);
+              }
+            } catch (e) {
+              /* the radio still drives the CSS */
+            }
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

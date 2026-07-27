@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+    
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="0.55" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+    <rect width="512" height="512" rx="114" fill="url(#bg)"/>
+    
+    
+  <path
+    d="M76 116h360a44 44 0 0 1 44 44v144a44 44 0 0 1-44 44H170l-62 56v-56H76a44 44 0 0 1-44-44V160a44 44 0 0 1 44-44z"
+    fill="#f5f5ff"/>
+  <g>
+    <rect x="149" y="236" width="34" height="64" rx="17" fill="#7c3aed"/>
+    <rect x="209" y="172" width="34" height="128" rx="17" fill="#06b6d4"/>
+    <rect x="269" y="196" width="34" height="104" rx="17" fill="#2563eb"/>
+    <rect x="329" y="228" width="34" height="72" rx="17" fill="#7c3aed"/>
+  </g>
+  </svg>

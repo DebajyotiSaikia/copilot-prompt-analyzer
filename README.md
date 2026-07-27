@@ -161,8 +161,19 @@ Two scripts guard the repo, and both read `git ls-files` so they only ever check
 what would actually ship:
 
 - `node scripts/secret-scan.mjs` — credentials, tokens, local paths, personal data
-- `node scripts/site-check.mjs` — broken assets, dead anchors, missing alt text
-  and social metadata in `site/`
+- `node scripts/site-check.mjs` — every page in `site/`: broken assets, dead
+  anchors across pages, missing alt text, the SEO and social metadata, the
+  sitemap, the manifest and its icons
+
+Two more are run by hand when `site/` changes:
+
+- `node scripts/site-shots.mjs` — serves `site/` and drives it through Chromium
+  at desktop, iPad and iPhone sizes in both themes, asserting no horizontal
+  overflow, 44px touch targets, that the theme toggle works with **JavaScript
+  disabled**, and that every page renders identically without scripting.
+  Screenshots land in `out/site-shots/`.
+- `node scripts/make-icons.mjs` — regenerates the favicon, Apple touch icon,
+  maskable icon and pinned-tab glyph from one SVG source
 
 ### Things worth not rediscovering
 

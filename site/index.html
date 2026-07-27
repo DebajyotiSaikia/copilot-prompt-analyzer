@@ -2,57 +2,286 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>
-      Copilot Prompt Analyzer — turn your chat history into working prompts
+      Copilot Prompt Analyzer — your chat history, as reusable prompts
     </title>
     <meta
       name="description"
-      content="Group every prompt you have ever sent to GitHub Copilot Chat by topic, then distil each area into one reusable prompt. Runs entirely on your machine."
+      content="Read every prompt you have sent to GitHub Copilot Chat, group it by topic, and distil each area into one reusable prompt. Free VS Code extension, runs locally."
     />
     <link rel="canonical" href="https://prompts.deb0.com/" />
-    <meta name="theme-color" content="#1e1b4b" />
+    <meta name="author" content="Debajyoti Saikia" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#0b0b14"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#ffffff"
+    />
 
+    <!-- Home-screen behaviour on iPhone and iPad. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Prompt Analyzer" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!--
+      Safari picks the SVG when it can, falls back to the PNGs otherwise. The
+      Apple touch icon is a separate opaque render because iOS fills any
+      transparency with black, and mask-icon is the monochrome pinned-tab glyph.
+    -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/mask-icon.svg" color="#7c3aed" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta property="og:site_name" content="Copilot Prompt Analyzer" />
     <meta property="og:title" content="Copilot Prompt Analyzer" />
     <meta
       property="og:description"
       content="Turn months of scattered Copilot chats into working prompts you can actually reuse."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content="https://prompts.deb0.com/" />
     <meta
       property="og:image"
       content="https://prompts.deb0.com/shot-areas.png"
     />
+    <meta property="og:image:width" content="1920" />
+    <meta property="og:image:height" content="1080" />
     <meta
       property="og:image:alt"
       content="The analyzer grouping Copilot prompts into areas of work inside VS Code."
     />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Copilot Prompt Analyzer" />
+    <meta
+      name="twitter:description"
+      content="Turn months of scattered Copilot chats into working prompts you can actually reuse."
+    />
     <meta
       name="twitter:image"
       content="https://prompts.deb0.com/shot-areas.png"
     />
+    <meta
+      name="twitter:image:alt"
+      content="The analyzer grouping Copilot prompts into areas of work inside VS Code."
+    />
 
-    <link rel="icon" href="icon.png" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="/styles.css" />
+
+    <!--
+      The only script on the site, and it renders nothing: every page is plain
+      HTML. This restores a stored theme before the first paint so a remembered
+      choice does not flash. With scripting off the radios still drive the theme
+      through CSS :has().
+    -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("cpa-theme");
+          if (t === "light" || t === "dark") {
+            document.documentElement.setAttribute("data-theme", t);
+          }
+        } catch (e) {
+          /* private mode; the CSS default is fine */
+        }
+      })();
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://prompts.deb0.com/#website",
+            "url": "https://prompts.deb0.com/",
+            "name": "Copilot Prompt Analyzer",
+            "inLanguage": "en",
+            "publisher": { "@id": "https://deb0.com/#person" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://deb0.com/#person",
+            "name": "Debajyoti Saikia",
+            "url": "https://deb0.com/",
+            "jobTitle": "Principal Software Engineer",
+            "worksFor": { "@type": "Organization", "name": "Microsoft" },
+            "sameAs": [
+              "https://github.com/DebajyotiSaikia",
+              "https://www.linkedin.com/in/debajyotisaikia/",
+              "https://blog.deb0.com/"
+            ]
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://prompts.deb0.com/#app",
+            "name": "Copilot Prompt Analyzer",
+            "applicationCategory": "DeveloperApplication",
+            "applicationSubCategory": "Visual Studio Code Extension",
+            "operatingSystem": "Windows, macOS, Linux",
+            "softwareVersion": "0.3.1",
+            "url": "https://prompts.deb0.com/",
+            "downloadUrl": "https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer",
+            "installUrl": "https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer",
+            "screenshot": "https://prompts.deb0.com/shot-areas.png",
+            "license": "https://opensource.org/licenses/MIT",
+            "description": "Reads your GitHub Copilot Chat history, groups every prompt by topic, and distils each area into one reusable prompt, instruction file or report. Runs on your machine.",
+            "featureList": [
+              "Working prompts generated per area of work",
+              "Dashboard with 21 locally computed visualisations",
+              "Ask questions about your own prompt history",
+              "Correction patterns and prompt quality reports",
+              "Export to .github/prompts and .github/instructions"
+            ],
+            "author": { "@id": "https://deb0.com/#person" },
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://prompts.deb0.com/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Does Copilot Prompt Analyzer upload my chat history?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Your history is read from local VS Code storage and stays on your machine. There is no server, no telemetry and no account. Classification and synthesis call a model through your own Copilot subscription; every other feature is computed locally."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What do I need to run it?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "VS Code 1.95 or later and an active GitHub Copilot subscription."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What does it actually produce?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "One reusable prompt per area of work, covering the objective, your stack, requirements, conventions, a Do not list mined from your corrections, and a definition of done. Save it to .github/prompts to get a slash command, or .github/instructions to have it applied automatically."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How much does it cost?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Nothing. It is free and MIT licensed. Model calls run on the Copilot subscription you already have."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <header class="nav">
-      <a class="brand" href="#top">
+      <a class="brand" href="/">
         <span class="brand-mark" aria-hidden="true"></span>
         <span>Copilot Prompt Analyzer</span>
       </a>
-      <nav>
+      <nav aria-label="Primary">
         <a href="#what">What it does</a>
         <a href="#how">How it works</a>
         <a href="#privacy">Privacy</a>
+      </nav>
+      <div class="nav-end">
+        <fieldset class="theme-toggle">
+          <legend class="sr-only">Colour theme</legend>
+          <input
+            type="radio"
+            name="theme"
+            id="theme-system"
+            value="system"
+            checked
+          />
+          <label for="theme-system" title="Match system">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect
+                x="2.5"
+                y="4"
+                width="19"
+                height="13"
+                rx="2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M8 21h8"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span class="sr-only">Match system</span>
+          </label>
+          <input type="radio" name="theme" id="theme-light" value="light" />
+          <label for="theme-light" title="Light">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle
+                cx="12"
+                cy="12"
+                r="4.2"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span class="sr-only">Light</span>
+          </label>
+          <input type="radio" name="theme" id="theme-dark" value="dark" />
+          <label for="theme-dark" title="Dark">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.2 8.2 0 1 0 10.2 10.2z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span class="sr-only">Dark</span>
+          </label>
+        </fieldset>
         <a
           class="btn btn-primary"
           href="https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer"
           >Install</a
         >
-      </nav>
+      </div>
     </header>
 
     <main id="top">
@@ -421,15 +650,66 @@
 
     <footer class="foot">
       <div class="wrap">
+        <ul class="foot-links">
+          <li><a href="/privacy.html">Privacy</a></li>
+          <li><a href="/terms.html">Terms</a></li>
+          <li><a href="/security.html">Security</a></li>
+          <li>
+            <a href="https://github.com/DebajyotiSaikia/copilot-prompt-analyzer"
+              >Source</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://marketplace.visualstudio.com/items?itemName=DebajyotiSaikia.copilot-prompt-analyzer"
+              >Marketplace</a
+            >
+          </li>
+        </ul>
         <p>
           Copilot Prompt Analyzer — not affiliated with GitHub or Microsoft. MIT
           licensed. Built by
           <a href="https://deb0.com/">Debajyoti Saikia</a>.
-          <a href="https://github.com/DebajyotiSaikia/copilot-prompt-analyzer"
-            >Source on GitHub</a
-          >.
         </p>
       </div>
     </footer>
+
+    <!--
+      Persistence only. The theme itself is switched by CSS from the radios
+      above, so this page behaves correctly with scripting disabled.
+    -->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var stored = null;
+        try {
+          stored = localStorage.getItem("cpa-theme");
+        } catch (e) {
+          /* private mode */
+        }
+        if (stored === "light" || stored === "dark") {
+          var pre = document.getElementById("theme-" + stored);
+          if (pre) {
+            pre.checked = true;
+          }
+        }
+        var radios = document.querySelectorAll('input[name="theme"]');
+        for (var i = 0; i < radios.length; i++) {
+          radios[i].addEventListener("change", function () {
+            try {
+              if (this.value === "system") {
+                root.removeAttribute("data-theme");
+                localStorage.removeItem("cpa-theme");
+              } else {
+                root.setAttribute("data-theme", this.value);
+                localStorage.setItem("cpa-theme", this.value);
+              }
+            } catch (e) {
+              /* the radio still drives the CSS */
+            }
+          });
+        }
+      })();
+    </script>
   </body>
 </html>

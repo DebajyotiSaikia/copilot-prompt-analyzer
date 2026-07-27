@@ -1,4 +1,21 @@
+/*
+ * Theming
+ * -------
+ * Dark is the default paint. There are three ways to end up light, in
+ * increasing order of authority:
+ *
+ *   1. the OS asks for it and nothing else has been chosen;
+ *   2. the radio in the header is set — this is the whole toggle when
+ *      JavaScript is off, and it works through :has() alone;
+ *   3. data-theme, written by the inline script in <head> from a stored choice
+ *      before the first paint, so a remembered preference never flashes.
+ *
+ * The light block is written out twice because a media query cannot appear
+ * inside a selector list. Keep the two copies in step.
+ */
+
 :root {
+  color-scheme: dark;
   --bg: #0b0b14;
   --bg-2: #11111d;
   --panel: #16162a;
@@ -11,8 +28,64 @@
   --cyan: #06b6d4;
   --green: #34d399;
   --amber: #fbbf24;
+  --nav-bg: #0b0b14e0;
+  --tint: #ffffff0a;
+  --tint-2: #ffffff14;
+  --tint-line: #3a3a63;
+  --code-bg: #ffffff10;
+  --h1-from: #ffffff;
+  --h1-to: #b9b9dd;
+  --feature-wash: #1d1838;
+  --glow: #7c3aed40;
   --radius: 14px;
   --wrap: 1120px;
+}
+
+/* 1 + 2: the OS asks for light, and no explicit choice contradicts it. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]):not(:has(#theme-dark:checked)):not(
+      :has(#theme-light:checked)
+    ) {
+    color-scheme: light;
+    --bg: #ffffff;
+    --bg-2: #f6f6fb;
+    --panel: #ffffff;
+    --line: #e2e2ee;
+    --text: #16162a;
+    --dim: #52526e;
+    --faint: #6e6e92;
+    --nav-bg: #ffffffe6;
+    --tint: #16162a08;
+    --tint-2: #16162a12;
+    --tint-line: #c9c9dd;
+    --code-bg: #16162a0a;
+    --h1-from: #1a1633;
+    --h1-to: #4b3fa0;
+    --feature-wash: #f2effe;
+    --glow: #7c3aed26;
+  }
+}
+
+/* 2 + 3: an explicit light choice, from the radio or from storage. */
+:root[data-theme="light"],
+:root:not([data-theme]):has(#theme-light:checked) {
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-2: #f6f6fb;
+  --panel: #ffffff;
+  --line: #e2e2ee;
+  --text: #16162a;
+  --dim: #52526e;
+  --faint: #6e6e92;
+  --nav-bg: #ffffffe6;
+  --tint: #16162a08;
+  --tint-2: #16162a12;
+  --tint-line: #c9c9dd;
+  --code-bg: #16162a0a;
+  --h1-from: #1a1633;
+  --h1-to: #4b3fa0;
+  --feature-wash: #f2effe;
+  --glow: #7c3aed26;
 }
 
 * {
@@ -21,6 +94,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* iOS Safari otherwise inflates body text when the phone turns landscape. */
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -39,6 +114,8 @@ body {
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  /* Nothing should be able to push the page sideways on a phone. */
+  overflow-wrap: break-word;
 }
 
 code,
@@ -49,7 +126,7 @@ pre {
 
 code {
   font-size: 0.88em;
-  background: #ffffff10;
+  background: var(--code-bg);
   border: 1px solid var(--line);
   border-radius: 5px;
   padding: 1px 5px;
@@ -67,10 +144,31 @@ a {
   color: inherit;
 }
 
+/* Visible to a screen reader, not to the eye. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+:where(a, button, input, label, summary):focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .wrap {
   max-width: var(--wrap);
   margin: 0 auto;
-  padding: 0 24px;
+  /* The insets keep content clear of the notch and the home indicator. */
+  padding: 0 max(24px, env(safe-area-inset-left)) 0
+    max(24px, env(safe-area-inset-right));
 }
 
 /* ------------------------------------------------------------------ nav */
@@ -82,9 +180,11 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 14px 24px;
-  background: #0b0b14e0;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px max(16px, env(safe-area-inset-right)) 12px
+    max(16px, env(safe-area-inset-left));
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
@@ -118,6 +218,12 @@ a {
   font-size: 14px;
 }
 
+.nav-end {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .nav nav a {
   color: var(--dim);
   text-decoration: none;
@@ -132,7 +238,7 @@ a {
   padding: 8px 16px;
   border-radius: 9px;
   border: 1px solid var(--line);
-  background: #ffffff0a;
+  background: var(--tint);
   color: var(--text);
   text-decoration: none;
   font-weight: 550;
@@ -144,8 +250,8 @@ a {
 }
 
 .btn:hover {
-  background: #ffffff14;
-  border-color: #3a3a63;
+  background: var(--tint-2);
+  border-color: var(--tint-line);
 }
 
 .btn-primary {
@@ -169,7 +275,8 @@ a {
 .hero {
   max-width: var(--wrap);
   margin: 0 auto;
-  padding: 76px 24px 40px;
+  padding: 60px max(24px, env(safe-area-inset-right)) 40px
+    max(24px, env(safe-area-inset-left));
   text-align: center;
 }
 
@@ -183,10 +290,10 @@ a {
 }
 
 .hero h1 {
-  font-size: clamp(34px, 5.4vw, 60px);
+  font-size: clamp(30px, 5.4vw, 60px);
   font-weight: 680;
   margin-bottom: 20px;
-  background: linear-gradient(180deg, #ffffff, #b9b9dd);
+  background: linear-gradient(180deg, var(--h1-from), var(--h1-to));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -214,8 +321,8 @@ a {
   background: var(--bg-2);
   overflow: hidden;
   box-shadow:
-    0 30px 80px -30px #7c3aed40,
-    0 0 0 1px #ffffff08;
+    0 30px 80px -30px var(--glow),
+    0 0 0 1px var(--tint);
 }
 
 /*
@@ -249,9 +356,13 @@ a {
   padding: 0 0 64px;
 }
 
+/*
+ * min() on the track minimum is what keeps a 320px iPhone SE from scrolling
+ * sideways: without it a 320px track cannot fit inside a 272px content box.
+ */
 .shot-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 20px;
 }
 
@@ -303,7 +414,7 @@ a {
 
 .problem-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 26px;
 }
 
@@ -326,7 +437,7 @@ a {
 
 .feature-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr));
   gap: 16px;
 }
 
@@ -350,7 +461,7 @@ a {
 
 .feature-wide {
   grid-column: span 2;
-  background: linear-gradient(160deg, #1d1838, var(--panel) 60%);
+  background: linear-gradient(160deg, var(--feature-wash), var(--panel) 60%);
 }
 
 .feature h3 {
@@ -386,7 +497,7 @@ a {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 28px;
 }
 
@@ -428,7 +539,7 @@ a {
 
 .privacy-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 18px;
 }
 
@@ -514,10 +625,189 @@ a {
   color: var(--text);
 }
 
+/* ------------------------------------------------------------ theme toggle */
+
+/*
+ * Three radios in a segmented control. The radios are the state: CSS reads them
+ * with :has(), so the toggle works with JavaScript disabled. The script only
+ * remembers the choice between pages.
+ */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--tint);
+}
+
+.theme-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-toggle label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--faint);
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.theme-toggle label:hover {
+  color: var(--text);
+}
+
+.theme-toggle svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.theme-toggle input:checked + label {
+  background: var(--tint-2);
+  color: var(--text);
+}
+
+/* Keyboard focus lands on the input, so the ring has to be drawn on the label. */
+.theme-toggle input:focus-visible + label {
+  outline: 2px solid var(--violet);
+  outline-offset: 1px;
+}
+
+/* Apple's guidance is a 44px target; fingers do not get smaller on a big page. */
+@media (pointer: coarse) {
+  .theme-toggle label {
+    width: 44px;
+    height: 40px;
+  }
+}
+
+/* ------------------------------------------------------------------ prose */
+
+.page-head {
+  padding: 56px 0 8px;
+  text-align: center;
+}
+
+.page-head h1 {
+  font-size: clamp(28px, 4.4vw, 42px);
+  font-weight: 680;
+}
+
+.page-head .updated {
+  margin: 12px 0 0;
+  color: var(--faint);
+  font-size: 13px;
+}
+
+.prose {
+  padding: 20px 0 72px;
+}
+
+.prose .wrap {
+  max-width: 760px;
+}
+
+.prose h2 {
+  font-size: clamp(20px, 2.6vw, 26px);
+  font-weight: 660;
+  margin: 40px 0 12px;
+  scroll-margin-top: 80px;
+}
+
+.prose h3 {
+  font-size: 17px;
+  margin: 26px 0 8px;
+}
+
+.prose p,
+.prose li {
+  color: var(--dim);
+  font-size: 15.5px;
+}
+
+.prose p {
+  margin: 0 0 14px;
+}
+
+.prose ul,
+.prose ol {
+  margin: 0 0 16px;
+  padding-left: 22px;
+}
+
+.prose li {
+  margin-bottom: 8px;
+}
+
+.prose strong {
+  color: var(--text);
+}
+
+.prose a {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--tint-line);
+}
+
+.prose a:hover {
+  text-decoration-color: var(--violet);
+}
+
+.callout {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--violet);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 18px 22px;
+  margin: 0 0 24px;
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 20px;
+  font-size: 14.5px;
+  /* A narrow phone gets a scrollable table rather than a broken layout. */
+  display: block;
+  overflow-x: auto;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid var(--line);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+  color: var(--dim);
+}
+
+.prose th {
+  color: var(--text);
+  background: var(--bg-2);
+  font-weight: 620;
+  white-space: nowrap;
+}
+
 /* ----------------------------------------------------------------- foot */
 
 .foot {
-  padding: 28px 0 40px;
+  padding: 28px 0 max(40px, env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
   color: var(--faint);
   font-size: 13px;
@@ -528,12 +818,93 @@ a {
   margin: 0;
 }
 
-@media (max-width: 720px) {
+.foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 18px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.foot-links a {
+  text-decoration: none;
+  color: var(--dim);
+}
+
+.foot-links a:hover {
+  color: var(--text);
+}
+
+/* ----------------------------------------------------------- form factors */
+
+/*
+ * iPad in portrait is 768px wide, iPhone Pro Max 430px, iPhone SE 375px. The
+ * layout is fluid grids throughout, so these only handle the two places where
+ * fluid is not enough: the wide feature card and the header.
+ */
+@media (max-width: 860px) {
   .feature-wide {
     grid-column: span 1;
   }
-  .nav nav a:not(.btn) {
-    display: none;
+}
+
+@media (max-width: 720px) {
+  .nav {
+    justify-content: space-between;
+    row-gap: 8px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .nav nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 16px;
+    font-size: 13.5px;
+  }
+  .hero {
+    padding-top: 40px;
+  }
+  .problem,
+  .features,
+  .how,
+  .privacy,
+  .install {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+  .shot-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/*
+ * Below this the brand, the toggle and the Install button cannot share a row.
+ * The wordmark is the part to drop — the <h1> underneath says what the site is,
+ * and the name stays in the accessibility tree rather than disappearing.
+ */
+@media (max-width: 560px) {
+  .brand span:last-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-actions .btn {
+    width: 100%;
+  }
+  .nav nav {
+    gap: 12px;
+    font-size: 13px;
   }
 }
 
@@ -541,7 +912,8 @@ a {
   html {
     scroll-behavior: auto;
   }
-  .btn {
+  .btn,
+  .theme-toggle label {
     transition: none;
   }
 }

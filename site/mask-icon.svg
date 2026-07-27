@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <path
+    d="M76 116h360a44 44 0 0 1 44 44v144a44 44 0 0 1-44 44H170l-62 56v-56H76a44 44 0 0 1-44-44V160a44 44 0 0 1 44-44zm73 120v64h34v-64zm60-64v128h34V172zm60 24v104h34V196zm60 32v72h34v-72z"
+    fill="black" fill-rule="evenodd"/>
+</svg>
