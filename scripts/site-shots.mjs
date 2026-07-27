@@ -44,7 +44,9 @@ const server = createServer((req, res) => {
     return;
   }
   const ext = file.slice(file.lastIndexOf("."));
-  res.writeHead(200, { "content-type": TYPES[ext] ?? "application/octet-stream" });
+  res.writeHead(200, {
+    "content-type": TYPES[ext] ?? "application/octet-stream",
+  });
   res.end(readFileSync(file));
 });
 await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -120,6 +122,17 @@ for (const factor of FORM_FACTORS) {
       }
     }
 
+    // The brand mark is an image now, so it can 404 and leave an empty box.
+    const mark = await page.evaluate(() => {
+      const img = document.querySelector("img.brand-mark");
+      return img
+        ? { complete: img.complete, w: img.naturalWidth || img.width }
+        : null;
+    });
+    if (!mark || !mark.complete || mark.w === 0) {
+      problems.push(`${name}/${scheme}: brand mark did not render`);
+    }
+
     await page.screenshot({
       path: join(out, `${name}-${scheme}.png`),
       fullPage: false,
@@ -165,7 +178,12 @@ const check = await browser.newContext({
   viewport: { width: 1280, height: 1400 },
 });
 const legal = await check.newPage();
-for (const name of ["privacy.html", "terms.html", "security.html"]) {
+for (const name of [
+  "privacy.html",
+  "terms.html",
+  "security.html",
+  "sitemap.html",
+]) {
   await legal.goto(url(name));
   const counts = await legal.evaluate(() => ({
     h1: document.querySelectorAll("h1").length,
@@ -174,7 +192,7 @@ for (const name of ["privacy.html", "terms.html", "security.html"]) {
     words: (document.body.innerText.match(/\S+/g) || []).length,
   }));
   console.log(`${name}: ${JSON.stringify(counts)}`);
-  if (counts.h1 !== 1 || counts.toggle !== 3 || counts.footLinks < 5) {
+  if (counts.h1 !== 1 || counts.toggle !== 3 || counts.footLinks < 6) {
     problems.push(`${name}: chrome mismatch ${JSON.stringify(counts)}`);
   }
   await legal.screenshot({
@@ -184,7 +202,9 @@ for (const name of ["privacy.html", "terms.html", "security.html"]) {
 await check.close();
 
 /* ---------- every page is fully rendered without scripting ---------- */
-const withJs = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+const withJs = await browser.newContext({
+  viewport: { width: 1280, height: 900 },
+});
 const withoutJs = await browser.newContext({
   viewport: { width: 1280, height: 900 },
   javaScriptEnabled: false,
@@ -197,7 +217,13 @@ const text = async (page, name) => {
     (document.body.innerText || "").replace(/\s+/g, " ").trim()
   );
 };
-for (const name of ["index.html", "privacy.html", "terms.html", "security.html"]) {
+for (const name of [
+  "index.html",
+  "privacy.html",
+  "terms.html",
+  "security.html",
+  "sitemap.html",
+]) {
   const scripted = await text(a, name);
   const plain = await text(b, name);
   if (scripted !== plain) {
