@@ -22,28 +22,7 @@ import {
   formatPercent,
   paletteColor,
 } from "../charts";
-import {
-  activityHeatmap,
-  areaEffort,
-  correctionTrend,
-  duplicateSummary,
-  fileHotspots,
-  headline,
-  latencyHistogram,
-  lengthVsQuality,
-  modeTrend,
-  modelTrend,
-  monthLabel,
-  projectSpans,
-  qualityTrend,
-  replyVsTools,
-  sessionAnatomy,
-  slashCommands,
-  tokenSpend,
-  toolUsage,
-  topicDrift,
-  wastedTurns,
-} from "../dashboard";
+import { collectMetrics, dashboardMarkdown, monthLabel } from "../dashboard";
 
 interface Props {
   prompts: PromptRecord[];
@@ -52,6 +31,8 @@ interface Props {
   areas: Area[];
   charsPerToken: number;
   scopeLabel: string;
+  onCopy: (text: string) => void;
+  onSave: (markdown: string) => void;
 }
 
 function Card({
@@ -103,33 +84,16 @@ export function DashboardView({
   areas,
   charsPerToken,
   scopeLabel,
+  onCopy,
+  onSave,
 }: Props): JSX.Element {
   // Everything is derived, and some of it walks the corpus several times, so the
   // whole set is memoised against the filtered prompts.
-  const metrics = React.useMemo(() => {
-    const waste = wastedTurns(prompts);
-    return {
-      waste,
-      head: headline(prompts, waste),
-      corrections: correctionTrend(prompts, classifications, areas),
-      quality: qualityTrend(prompts),
-      effort: areaEffort(prompts, classifications, areas),
-      heat: activityHeatmap(prompts),
-      models: modelTrend(prompts),
-      modes: modeTrend(prompts),
-      latency: latencyHistogram(prompts),
-      anatomy: sessionAnatomy(prompts, sessions),
-      tools: toolUsage(prompts),
-      files: fileHotspots(prompts),
-      drift: topicDrift(prompts, classifications, areas),
-      lengthQuality: lengthVsQuality(prompts),
-      projects: projectSpans(prompts),
-      duplicates: duplicateSummary(prompts),
-      tokens: tokenSpend(prompts, charsPerToken),
-      commands: slashCommands(prompts),
-      replyTools: replyVsTools(prompts),
-    };
-  }, [prompts, sessions, classifications, areas, charsPerToken]);
+  const metrics = React.useMemo(
+    () =>
+      collectMetrics(prompts, sessions, classifications, areas, charsPerToken),
+    [prompts, sessions, classifications, areas, charsPerToken]
+  );
 
   if (prompts.length === 0) {
     return (
@@ -179,6 +143,28 @@ export function DashboardView({
             <strong>{formatCount(head.prompts)}</strong> prompt(s) currently
             selected — {scopeLabel}. No model is called.
           </p>
+        </div>
+        <div className="dashboard-actions">
+          <button
+            type="button"
+            className="ghost"
+            title="Copy every metric on this page as markdown"
+            onClick={() =>
+              onCopy(dashboardMarkdown(metrics, scopeLabel, charsPerToken))
+            }
+          >
+            Copy summary
+          </button>
+          <button
+            type="button"
+            className="ghost"
+            title="Save every metric on this page as a markdown file"
+            onClick={() =>
+              onSave(dashboardMarkdown(metrics, scopeLabel, charsPerToken))
+            }
+          >
+            Save as markdown
+          </button>
         </div>
       </header>
 

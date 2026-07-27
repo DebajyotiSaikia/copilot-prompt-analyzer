@@ -223,6 +223,7 @@ export type InboundMessage =
   | { type: "openSession"; sessionId: string }
   | { type: "openInEditor" }
   | { type: "copy"; text: string }
+  | { type: "saveMarkdown"; label: string; markdown: string }
   | { type: "export" };
 
 /* ---------- extension -> webview ---------- */

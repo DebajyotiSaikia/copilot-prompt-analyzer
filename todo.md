@@ -1,7 +1,8 @@
 # Copilot Prompt Analyzer — Roadmap
 
-v0.3.0 is live: the **Dashboard** page ships 21 visualisations over the same
-filtered corpus every other view uses, all computed locally.
+v0.3.1 is live. The **Dashboard** page ships 21 visualisations over the same
+filtered corpus every other view uses, all computed locally, and exports the
+whole page as markdown.
 
 For build, release and demo commands, and the traps that cost real time, see the
 **Maintaining** section of `README.md`.
@@ -19,12 +20,9 @@ For build, release and demo commands, and the traps that cost real time, see the
 - **Every metric is computed locally.** No model calls, instant, works signed
   out. That is what makes the dashboard the first thing people trust.
 - Metrics live in `webview/dashboard.ts` as pure functions so they can be tested
-  under `node --test` without a DOM.
+  under `node --test` without a DOM. The page and its markdown export both read
+  `collectMetrics`, so they cannot disagree.
 
 ## Pending
 
-- [ ] **Export the dashboard** — a markdown summary of every metric, so the
-      numbers can leave the editor and land in a retro or an issue.
-- [ ] **Sparse-history charts** — with only two months of data the trend cards
-      render a single dashed segment across a tall card. Collapse to a compact
-      form when there are fewer than three points.
+Nothing outstanding.

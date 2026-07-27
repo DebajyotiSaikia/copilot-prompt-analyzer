@@ -1161,6 +1161,9 @@ export class AnalyzerService {
         await vscode.env.clipboard.writeText(message.text);
         this.toast("info", "Copied to clipboard.");
         return;
+      case "saveMarkdown":
+        await this.writeDocument(message.label, message.markdown, "markdown");
+        return;
       case "export":
         await this.exportJson();
         return;

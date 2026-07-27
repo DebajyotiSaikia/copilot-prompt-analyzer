@@ -2083,6 +2083,20 @@ button {
   font-weight: 640;
 }
 
+.dashboard-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
 .dashboard-head p {
   margin: 0;
   color: var(--text-dim);
@@ -2187,6 +2201,18 @@ button {
   height: auto;
   display: block;
   overflow: visible;
+}
+
+/*
+ * A chart with one or two points scales its own height up when it stretches to
+ * fill a wide card, which is the emptiness it was meant to avoid. Pinning the
+ * height and letting width follow the viewBox keeps it genuinely compact.
+ */
+.chart.is-compact {
+  width: auto;
+  height: 168px;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .chart-empty {

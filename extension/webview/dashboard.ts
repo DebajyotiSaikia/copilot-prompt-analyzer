@@ -20,6 +20,7 @@ import type {
   PromptRecord,
   SessionRecord,
 } from "../src/types.ts";
+import { formatCount, formatPercent } from "./format.ts";
 
 export type Classifications = Record<string, Classification>;
 
@@ -902,4 +903,383 @@ export function headline(
     correctionRate: prompts.length > 0 ? corrections / prompts.length : 0,
     wastedShare: waste.wastedShare,
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* The whole set                                                       */
+/* ------------------------------------------------------------------ */
+
+export interface DashboardMetrics {
+  waste: WastedTurns;
+  head: Headline;
+  corrections: CorrectionTrend;
+  quality: QualityTrend;
+  effort: AreaEffort[];
+  heat: ActivityHeatmap;
+  models: StackedTrend;
+  modes: StackedTrend;
+  latency: Histogram;
+  anatomy: SessionAnatomy;
+  tools: ToolUsage;
+  files: NamedCount[];
+  drift: TopicDrift;
+  lengthQuality: ScatterPoint[];
+  projects: ProjectSpan[];
+  duplicates: DuplicateSummary;
+  tokens: TokenSpend;
+  commands: NamedCount[];
+  replyTools: ScatterPoint[];
+}
+
+/**
+ * Computed in one place so the page and its markdown export can never disagree
+ * about what the numbers are.
+ */
+export function collectMetrics(
+  prompts: PromptRecord[],
+  sessions: SessionRecord[],
+  classifications: Classifications,
+  areas: Area[],
+  charsPerToken: number
+): DashboardMetrics {
+  const waste = wastedTurns(prompts);
+  return {
+    waste,
+    head: headline(prompts, waste),
+    corrections: correctionTrend(prompts, classifications, areas),
+    quality: qualityTrend(prompts),
+    effort: areaEffort(prompts, classifications, areas),
+    heat: activityHeatmap(prompts),
+    models: modelTrend(prompts),
+    modes: modeTrend(prompts),
+    latency: latencyHistogram(prompts),
+    anatomy: sessionAnatomy(prompts, sessions),
+    tools: toolUsage(prompts),
+    files: fileHotspots(prompts),
+    drift: topicDrift(prompts, classifications, areas),
+    lengthQuality: lengthVsQuality(prompts),
+    projects: projectSpans(prompts),
+    duplicates: duplicateSummary(prompts),
+    tokens: tokenSpend(prompts, charsPerToken),
+    commands: slashCommands(prompts),
+    replyTools: replyVsTools(prompts),
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Markdown export                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Pearson's r. A scatter plot cannot survive the trip into markdown, but the
+ * one thing a reader wants from it — whether the two axes move together — is a
+ * single number.
+ */
+export function correlation(points: { x: number; y: number }[]): number | null {
+  if (points.length < 3) {
+    return null;
+  }
+  const n = points.length;
+  const meanX = sum(points.map((p) => p.x)) / n;
+  const meanY = sum(points.map((p) => p.y)) / n;
+  let covariance = 0;
+  let varX = 0;
+  let varY = 0;
+  for (const point of points) {
+    const dx = point.x - meanX;
+    const dy = point.y - meanY;
+    covariance += dx * dy;
+    varX += dx * dx;
+    varY += dy * dy;
+  }
+  if (varX === 0 || varY === 0) {
+    return null;
+  }
+  return covariance / Math.sqrt(varX * varY);
+}
+
+/** "no relationship" is the honest reading of most of these, so say it. */
+function describeCorrelation(r: number | null): string {
+  if (r === null) {
+    return "not enough spread to say";
+  }
+  const strength =
+    Math.abs(r) < 0.2
+      ? "essentially no relationship"
+      : Math.abs(r) < 0.4
+        ? "a weak relationship"
+        : Math.abs(r) < 0.6
+          ? "a moderate relationship"
+          : "a strong relationship";
+  const direction = r > 0 ? "positive" : "negative";
+  return `${strength} (r = ${r.toFixed(2)}, ${direction})`;
+}
+
+const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+/** Pipes would split the cell, and a summary is not worth a broken table. */
+function cell(text: string): string {
+  return text.replace(/\|/g, "\\|").replace(/\s+/g, " ").trim();
+}
+
+function table(headers: string[], rows: string[][]): string[] {
+  if (rows.length === 0) {
+    return ["_Nothing to report for this selection._", ""];
+  }
+  return [
+    `| ${headers.join(" | ")} |`,
+    `| ${headers.map(() => "---").join(" | ")} |`,
+    ...rows.map((row) => `| ${row.map(cell).join(" | ")} |`),
+    "",
+  ];
+}
+
+function isoDay(ts: number): string {
+  return new Date(ts).toISOString().slice(0, 10);
+}
+
+/**
+ * The dashboard as text. Charts do not paste into a retro, an issue or a
+ * commit message; these numbers do.
+ */
+export function dashboardMarkdown(
+  metrics: DashboardMetrics,
+  scopeLabel: string,
+  charsPerToken: number
+): string {
+  const {
+    waste,
+    head,
+    corrections,
+    quality,
+    effort,
+    heat,
+    models,
+    modes,
+    latency,
+    anatomy,
+    tools,
+    files,
+    drift,
+    lengthQuality,
+    projects,
+    duplicates,
+    tokens,
+    commands,
+    replyTools,
+  } = metrics;
+
+  const months = quality.months.map(monthLabel);
+  const lines: string[] = [
+    "# Prompt dashboard",
+    "",
+    `Computed locally from ${formatCount(head.prompts)} prompt(s) — ${scopeLabel}. No model was called.`,
+    "",
+    ...table(
+      ["Metric", "Value"],
+      [
+        ["Prompts", formatCount(head.prompts)],
+        ["Sessions", formatCount(head.sessions)],
+        ["Projects", formatCount(head.projects)],
+        ["Span", `${formatCount(head.days)} days`],
+        ["Correction rate", formatPercent(head.correctionRate, 1)],
+        ["Wasted turns", formatPercent(head.wastedShare, 1)],
+        ["Estimated tokens", formatCount(tokens.total)],
+      ]
+    ),
+    "## What to act on",
+    "",
+    "### Correction rate over time",
+    "",
+    corrections.worstArea
+      ? `Worst area: **${corrections.worstArea.label}** at ${formatPercent(corrections.worstArea.rate, 1)}. Every spike is an instruction file you have not written.`
+      : "Not enough classified history to break corrections down by area yet.",
+    "",
+    ...table(
+      ["Month", "All areas", ...corrections.series.map((s) => s.name)],
+      corrections.months.map((month, i) => [
+        monthLabel(month),
+        formatPercent(corrections.overall[i] ?? 0, 1),
+        ...corrections.series.map((s) => formatPercent(s.points[i] ?? 0, 1)),
+      ])
+    ),
+    "### Where the turns went",
+    "",
+    `${formatPercent(waste.wastedShare, 1)} of requests carried no new information, including ${formatCount(waste.pastedChars)} characters of pasted output.`,
+    "",
+    ...table(
+      ["Bucket", "Turns", "Share"],
+      (
+        [
+          ["Useful", waste.useful],
+          ["Steering only", waste.steering],
+          ["Repeated asks", waste.duplicate],
+          ["Mostly pasted", waste.paste],
+        ] as [string, number][]
+      ).map(([name, value]) => [
+        name,
+        formatCount(value),
+        formatPercent(waste.total > 0 ? value / waste.total : 0, 1),
+      ])
+    ),
+    "### Prompt quality over time",
+    "",
+    ...table(
+      ["Month", "Specificity", "Context", "Actionability", "No information"],
+      months.map((month, i) => [
+        month,
+        (quality.specificity[i] ?? 0).toFixed(1),
+        (quality.context[i] ?? 0).toFixed(1),
+        (quality.actionability[i] ?? 0).toFixed(1),
+        formatPercent(quality.emptyShare[i] ?? 0, 1),
+      ])
+    ),
+    "### Where your effort goes",
+    "",
+    ...table(
+      ["Area", "Prompts", "Correction rate"],
+      effort.map((area) => [
+        area.label,
+        formatCount(area.count),
+        formatPercent(area.correctionRate, 1),
+      ])
+    ),
+    "## How you work",
+    "",
+    "### When you work",
+    "",
+    `Busiest around ${heat.busiestHour}:00, and ${DAY_NAMES[heat.busiestDay]} more than any other day. Peak cell: ${formatCount(heat.peak)} prompt(s).`,
+    "",
+    "### Models",
+    "",
+    ...table(
+      ["Model", "Prompts"],
+      models.series.map((series) => [
+        series.name,
+        formatCount(sum(series.points)),
+      ])
+    ),
+    "### Modes",
+    "",
+    ...table(
+      ["Mode", "Prompts"],
+      modes.series.map((series) => [
+        series.name,
+        formatCount(sum(series.points)),
+      ])
+    ),
+    "### Response time",
+    "",
+    `Median ${latency.median.toFixed(1)}s, 90th percentile ${latency.p90.toFixed(1)}s.`,
+    "",
+    ...table(
+      ["Bucket", "Turns"],
+      latency.buckets
+        .filter((bucket) => bucket.count > 0)
+        .map((bucket) => [bucket.label, formatCount(bucket.count)])
+    ),
+    "### Sessions",
+    "",
+    `Median ${anatomy.lengths.median.toFixed(0)} prompt(s) per session, median ${anatomy.durations.median.toFixed(0)} minute(s) from first message to last.` +
+      (anatomy.longest
+        ? ` Longest: ${formatCount(anatomy.longest.promptCount)} prompt(s) in ${anatomy.longest.workspaceName}.`
+        : ""),
+    "",
+    "### Tools",
+    "",
+    `${formatCount(tools.totalCalls)} call(s) in total, ${formatCount(tools.heavyTurns)} turn(s) burning 20 or more.`,
+    "",
+    ...table(
+      ["Tool", "Turns"],
+      tools.tools.map((tool) => [tool.name, formatCount(tool.count)])
+    ),
+    "## Worth a look",
+    "",
+    "### File hotspots",
+    "",
+    ...table(
+      ["File", "Mentions"],
+      files.map((file) => [file.name, formatCount(file.count)])
+    ),
+    "### Slash commands",
+    "",
+    ...table(
+      ["Command", "Uses"],
+      commands.map((command) => [
+        `/${command.name}`,
+        formatCount(command.count),
+      ])
+    ),
+    "### Topic drift",
+    "",
+    ...table(
+      ["From", "To", "Prompts carried"],
+      [...drift.links]
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 10)
+        .map((link) => {
+          const from = drift.nodes.find((node) => node.id === link.source);
+          const to = drift.nodes.find((node) => node.id === link.target);
+          return [
+            from ? `${from.label} (${monthLabel(from.month)})` : link.source,
+            to ? `${to.label} (${monthLabel(to.month)})` : link.target,
+            formatCount(link.value),
+          ];
+        })
+    ),
+    "### Correlations",
+    "",
+    `- Prompt length against quality: ${describeCorrelation(correlation(lengthQuality))}, over ${formatCount(lengthQuality.length)} prompt(s).`,
+    `- Tool calls against reply length: ${describeCorrelation(correlation(replyTools))}, over ${formatCount(replyTools.length)} turn(s).`,
+    "",
+    "### Projects",
+    "",
+    ...table(
+      ["Project", "Prompts", "First", "Last"],
+      projects.map((project) => [
+        project.name,
+        formatCount(project.count),
+        isoDay(project.first),
+        isoDay(project.last),
+      ])
+    ),
+    "### Estimated token spend",
+    "",
+    `At ${charsPerToken.toFixed(1)} characters per token. A proxy, not a bill.`,
+    "",
+    ...table(
+      ["Month", "Prompts", "Replies"],
+      tokens.months.map((month, i) => [
+        monthLabel(month),
+        formatCount(tokens.prompt[i] ?? 0),
+        formatCount(tokens.reply[i] ?? 0),
+      ])
+    ),
+    "### Questions you asked twice",
+    "",
+    `${formatCount(duplicates.repeatedAsks)} repeat ask(s). Each cluster is a document you have not written.`,
+    "",
+    ...(duplicates.clusters.length === 0
+      ? ["_No repeated questions in this selection._", ""]
+      : [
+          ...duplicates.clusters.map(
+            (cluster) =>
+              `- **×${cluster.size}** ${cell(cluster.sample)} — ${cluster.sessions} session(s), ${cluster.spanDays} day span`
+          ),
+          "",
+        ]),
+  ];
+
+  return lines
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
 }

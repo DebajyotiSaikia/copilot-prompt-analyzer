@@ -1,5 +1,25 @@
 # Change Log
 
+## 0.3.1
+
+### Added
+
+- **The dashboard exports.** **Copy summary** puts every metric on the page on
+  the clipboard as markdown; **Save as markdown** writes it to a file. Charts do
+  not paste into a retro or an issue, and these numbers do. The export is built
+  from the same computation the page draws, so the two can never disagree.
+
+  Scatter plots cannot survive the trip into text, so they are summarised the
+  way a reader would want them: a correlation coefficient and a plain-English
+  reading of it, rather than a wall of coordinates.
+
+### Changed
+
+- **Trend charts stop pretending two points are a trend.** With less than three
+  months of history the line and stacked-area cards now render as compact
+  columns at half the height, instead of stretching a single segment across a
+  tall, empty grid. Column charts cap their bar width for the same reason.
+
 ## 0.3.0
 
 ### Added

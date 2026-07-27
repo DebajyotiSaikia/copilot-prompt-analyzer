@@ -73,6 +73,10 @@ questions you asked twice.
 Charts are hand-drawn SVG, so they take the editor's theme and add nothing to the
 download.
 
+**Copy summary** puts every metric on the clipboard as markdown, and **Save as
+markdown** writes it to a file — a dashboard is only useful if the numbers can
+leave the editor.
+
 ## Everything else
 
 **Grouped by topic.** Prompts are classified into areas — UI, API, data, auth,

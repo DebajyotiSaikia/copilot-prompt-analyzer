@@ -5,7 +5,13 @@
 // only starts (rather than handing off to the running one) when it is given its
 // own --user-data-dir, which is why this uses a scratch profile.
 import { spawn, execSync } from "node:child_process";
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
@@ -76,7 +82,12 @@ export function prepare({ fresh = false } = {}) {
     "utf8"
   );
 
-  const vsix = join(extensionDir, "copilot-prompt-analyzer-0.3.0.vsix");
+  // Tracked to package.json so a version bump does not silently film the
+  // previous release.
+  const { version } = JSON.parse(
+    readFileSync(join(extensionDir, "package.json"), "utf8")
+  );
+  const vsix = join(extensionDir, `copilot-prompt-analyzer-${version}.vsix`);
   if (!existsSync(vsix)) {
     throw new Error(`VSIX not found: ${vsix}. Run vsce package first.`);
   }

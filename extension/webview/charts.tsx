@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import { formatCount, formatPercent } from "./format.ts";
+
 /**
  * Hand-drawn SVG chart primitives.
  *
@@ -29,19 +31,10 @@ export function paletteColor(index: number): string {
   return PALETTE[index % PALETTE.length];
 }
 
-export function formatCount(value: number): string {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(value >= 10_000 ? 0 : 1)}k`;
-  }
-  return String(Math.round(value));
-}
+/** Fewer than this many points is not a trend, it is a comparison. */
+const TREND_MINIMUM = 3;
 
-export function formatPercent(value: number, digits = 0): string {
-  return `${(value * 100).toFixed(digits)}%`;
-}
+export { formatCount, formatPercent };
 
 /** Rounds an axis maximum up to something a person would have chosen. */
 function niceMax(value: number): number {
@@ -60,12 +53,19 @@ interface FrameProps {
   height: number;
   children: React.ReactNode;
   label: string;
+  compact?: boolean;
 }
 
-function Frame({ width, height, children, label }: FrameProps): JSX.Element {
+function Frame({
+  width,
+  height,
+  children,
+  label,
+  compact,
+}: FrameProps): JSX.Element {
   return (
     <svg
-      className="chart"
+      className={`chart${compact ? " is-compact" : ""}`}
       viewBox={`0 0 ${width} ${height}`}
       role="img"
       aria-label={label}
@@ -146,18 +146,27 @@ export function ColumnChart({
   if (values.length === 0) {
     return <ChartEmpty message="Nothing to show for this filter." />;
   }
-  const width = 720;
-  const height = 220;
+  const compact = values.length < TREND_MINIMUM;
+  const width = compact ? 1080 : 720;
+  const height = compact ? 148 : 220;
   const pad = { top: 12, right: 8, bottom: 28, left: 44 };
   const plotW = width - pad.left - pad.right;
   const plotH = height - pad.top - pad.bottom;
   const max = niceMax(Math.max(...values));
   const slot = plotW / values.length;
-  const barWidth = Math.max(2, slot * 0.62);
+  // Capped, or two months of data would render as two enormous slabs.
+  const barWidth = Math.min(72, Math.max(2, slot * 0.62));
 
   return (
-    <Frame width={width} height={height} label={label}>
-      <Grid pad={pad} plotW={plotW} plotH={plotH} max={max} format={format} />
+    <Frame width={width} height={height} label={label} compact={compact}>
+      <Grid
+        pad={pad}
+        plotW={plotW}
+        plotH={plotH}
+        max={max}
+        format={format}
+        lines={compact ? [0, 0.5, 1] : undefined}
+      />
       {values.map((value, index) => {
         const barHeight = (value / max) * plotH;
         return (
@@ -185,14 +194,15 @@ function Grid({
   plotH,
   max,
   format,
+  lines = [0, 0.25, 0.5, 0.75, 1],
 }: {
   pad: { top: number; left: number };
   plotW: number;
   plotH: number;
   max: number;
   format: (value: number) => string;
+  lines?: number[];
 }): JSX.Element {
-  const lines = [0, 0.25, 0.5, 0.75, 1];
   return (
     <g className="chart-grid">
       {lines.map((fraction) => {
@@ -253,6 +263,91 @@ export interface LineSeries {
   dashed?: boolean;
 }
 
+/**
+ * One or two months stretched across a full-height line chart reads as an empty
+ * card — a single segment, acres of grid. The same numbers say more as compact
+ * columns, so the trend charts fall back to this until there is history to plot.
+ */
+function SparseColumns({
+  labels,
+  series,
+  format,
+  max: forcedMax,
+  stacked,
+  label,
+}: {
+  labels: string[];
+  series: LineSeries[];
+  format: (value: number) => string;
+  max?: number;
+  stacked?: boolean;
+  label: string;
+}): JSX.Element {
+  // Wider than the full-size charts on purpose: the height is pinned in CSS, so
+  // a wide viewBox is what keeps a short chart from leaving half the card empty.
+  const width = 1080;
+  const height = 148;
+  const pad = { top: 10, right: 8, bottom: 26, left: 44 };
+  const plotW = width - pad.left - pad.right;
+  const plotH = height - pad.top - pad.bottom;
+
+  const totals = labels.map((_, i) =>
+    series.reduce((total, s) => total + (s.points[i] ?? 0), 0)
+  );
+  const observed = stacked
+    ? Math.max(...totals, 0)
+    : Math.max(...series.flatMap((s) => s.points), 0);
+  const max = forcedMax ?? niceMax(observed);
+  const slot = plotW / labels.length;
+  const barWidth = stacked
+    ? Math.min(72, slot * 0.45)
+    : Math.min(40, (slot * 0.7) / series.length);
+  const groupWidth = stacked ? barWidth : barWidth * series.length;
+  const y = (value: number): number =>
+    pad.top + plotH - (max > 0 ? (value / max) * plotH : 0);
+
+  return (
+    <Frame width={width} height={height} label={label} compact>
+      <Grid
+        pad={pad}
+        plotW={plotW}
+        plotH={plotH}
+        max={max}
+        format={format}
+        lines={[0, 0.5, 1]}
+      />
+      {labels.map((text, group) => {
+        const left = pad.left + slot * group + (slot - groupWidth) / 2;
+        let base = 0;
+        return (
+          <g key={text ?? group}>
+            {series.map((band, index) => {
+              const value = band.points[group] ?? 0;
+              const top = stacked ? y(base + value) : y(value);
+              const bottom = stacked ? y(base) : y(0);
+              base += value;
+              return (
+                <rect
+                  key={band.name}
+                  x={stacked ? left : left + barWidth * index}
+                  y={top}
+                  width={Math.max(1, barWidth - (stacked ? 0 : 2))}
+                  height={Math.max(0, bottom - top)}
+                  fill={band.color ?? paletteColor(index)}
+                  rx={2}
+                >
+                  <title>{`${band.name} · ${text}: ${format(value)}`}</title>
+                </rect>
+              );
+            })}
+          </g>
+        );
+      })}
+      <TimeAxis labels={labels} pad={pad} plotW={plotW} plotH={plotH} />
+    </Frame>
+  );
+}
+
 export function LineChart({
   labels,
   series,
@@ -268,6 +363,17 @@ export function LineChart({
 }): JSX.Element {
   if (series.length === 0 || labels.length === 0) {
     return <ChartEmpty message="Not enough history to plot a trend yet." />;
+  }
+  if (labels.length < TREND_MINIMUM) {
+    return (
+      <SparseColumns
+        labels={labels}
+        series={series}
+        format={format}
+        max={forcedMax}
+        label={label}
+      />
+    );
   }
   const width = 720;
   const height = 240;
@@ -330,6 +436,17 @@ export function StackedArea({
 }): JSX.Element {
   if (series.length === 0 || labels.length === 0) {
     return <ChartEmpty message="Not enough history to plot a trend yet." />;
+  }
+  if (labels.length < TREND_MINIMUM) {
+    return (
+      <SparseColumns
+        labels={labels}
+        series={series}
+        format={formatCount}
+        stacked
+        label={label}
+      />
+    );
   }
   const width = 720;
   const height = 240;

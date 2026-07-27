@@ -4,7 +4,10 @@ import test from "node:test";
 import {
   activityHeatmap,
   areaEffort,
+  collectMetrics,
   correctionTrend,
+  correlation,
+  dashboardMarkdown,
   duplicateSummary,
   fileHotspots,
   headline,
@@ -408,4 +411,184 @@ test("headline summarises the corpus", () => {
   assert.equal(line.projects, 2);
   assert.equal(line.days, 10);
   assert.equal(line.correctionRate, 0.5);
+});
+
+/* ---------- correlation ---------- */
+
+test("correlation finds a perfect straight line", () => {
+  const points = [1, 2, 3, 4, 5].map((n) => ({ x: n, y: 2 * n + 1 }));
+  assert.ok(Math.abs(correlation(points)! - 1) < 1e-9);
+});
+
+test("correlation is negative when one axis falls as the other rises", () => {
+  const points = [1, 2, 3, 4, 5].map((n) => ({ x: n, y: 10 - n }));
+  assert.ok(correlation(points)! < -0.99);
+});
+
+test("correlation refuses to guess from too few or flat points", () => {
+  assert.equal(correlation([{ x: 1, y: 1 }]), null);
+  assert.equal(
+    correlation([
+      { x: 1, y: 1 },
+      { x: 2, y: 2 },
+    ]),
+    null
+  );
+  // A vertical line has no variance on x, so r is undefined rather than zero.
+  assert.equal(
+    correlation([
+      { x: 1, y: 1 },
+      { x: 1, y: 2 },
+      { x: 1, y: 3 },
+    ]),
+    null
+  );
+});
+
+/* ---------- markdown export ---------- */
+
+function sampleMetrics() {
+  const prompts = [
+    prompt("build the login form", {
+      ts: Date.UTC(2026, 0, 4),
+      workspaceName: "alpha",
+      refs: ["src/auth/login.ts"],
+      tools: ["read_file"],
+      toolCalls: 3,
+      elapsedMs: 4200,
+      command: "explain",
+      reply: "done",
+    }),
+    prompt("no, that is not what I asked for", {
+      ts: Date.UTC(2026, 1, 9),
+      workspaceName: "alpha",
+      elapsedMs: 9000,
+      reply: "sorry",
+    }),
+    prompt("add pagination to the results table", {
+      ts: Date.UTC(2026, 2, 2),
+      workspaceName: "beta",
+      reply: "ok",
+    }),
+  ];
+  const sessions: SessionRecord[] = prompts.map((p) => ({
+    id: p.sessionId,
+    workspace: null,
+    workspaceName: p.workspaceName,
+    createdAt: p.ts,
+    lastMessageAt: p.ts + 600000,
+    promptCount: 1,
+  })) as SessionRecord[];
+
+  return {
+    markdown: dashboardMarkdown(
+      collectMetrics(prompts, sessions, classify(prompts, "ui"), AREAS, 4),
+      "all areas, all projects",
+      4
+    ),
+    prompts,
+  };
+}
+
+test("dashboardMarkdown covers every section of the page", () => {
+  const { markdown } = sampleMetrics();
+
+  for (const heading of [
+    "# Prompt dashboard",
+    "## What to act on",
+    "### Correction rate over time",
+    "### Where the turns went",
+    "### Prompt quality over time",
+    "### Where your effort goes",
+    "## How you work",
+    "### When you work",
+    "### Models",
+    "### Modes",
+    "### Response time",
+    "### Sessions",
+    "### Tools",
+    "## Worth a look",
+    "### File hotspots",
+    "### Slash commands",
+    "### Topic drift",
+    "### Correlations",
+    "### Projects",
+    "### Estimated token spend",
+    "### Questions you asked twice",
+  ]) {
+    assert.ok(markdown.includes(heading), `missing section: ${heading}`);
+  }
+});
+
+test("dashboardMarkdown states the scope and that nothing was sent to a model", () => {
+  const { markdown } = sampleMetrics();
+  assert.ok(markdown.includes("all areas, all projects"));
+  assert.ok(markdown.includes("No model was called."));
+});
+
+test("dashboardMarkdown builds tables that survive a markdown renderer", () => {
+  const { markdown } = sampleMetrics();
+  const rows = markdown.split("\n").filter((line) => line.startsWith("|"));
+  assert.ok(rows.length > 10);
+  // Every table row has to have the same number of cells as its rule.
+  for (const row of rows) {
+    assert.ok(row.endsWith("|"), `unterminated row: ${row}`);
+  }
+});
+
+test("dashboardMarkdown escapes pipes so a file name cannot break the table", () => {
+  const prompts = [prompt("fix it", { refs: ["src/a|b.ts"], tools: ["x|y"] })];
+  const markdown = dashboardMarkdown(
+    collectMetrics(prompts, [], classify(prompts, "ui"), AREAS, 4),
+    "all areas",
+    4
+  );
+  assert.ok(markdown.includes("a\\|b.ts"));
+  assert.ok(markdown.includes("x\\|y"));
+});
+
+test("dashboardMarkdown says so rather than printing an empty table", () => {
+  const prompts = [prompt("hello")];
+  const markdown = dashboardMarkdown(
+    collectMetrics(prompts, [], {}, AREAS, 4),
+    "all areas",
+    4
+  );
+  assert.ok(markdown.includes("_Nothing to report for this selection._"));
+  assert.ok(markdown.includes("_No repeated questions in this selection._"));
+});
+
+test("collectMetrics returns every metric the page draws", () => {
+  const prompts = [prompt("a"), prompt("b")];
+  const metrics = collectMetrics(
+    prompts,
+    [],
+    classify(prompts, "ui"),
+    AREAS,
+    4
+  );
+
+  for (const key of [
+    "waste",
+    "head",
+    "corrections",
+    "quality",
+    "effort",
+    "heat",
+    "models",
+    "modes",
+    "latency",
+    "anatomy",
+    "tools",
+    "files",
+    "drift",
+    "lengthQuality",
+    "projects",
+    "duplicates",
+    "tokens",
+    "commands",
+    "replyTools",
+  ] as const) {
+    assert.ok(metrics[key] !== undefined, `missing metric: ${key}`);
+  }
 });

@@ -529,6 +529,14 @@ export function App(): JSX.Element {
             areas={snapshot.taxonomy.areas}
             charsPerToken={charsPerToken}
             scopeLabel={scopeLabel}
+            onCopy={(text) => post({ type: "copy", text })}
+            onSave={(markdown) =>
+              post({
+                type: "saveMarkdown",
+                label: "Prompt dashboard",
+                markdown,
+              })
+            }
           />
         </main>
         <div className="toasts">
