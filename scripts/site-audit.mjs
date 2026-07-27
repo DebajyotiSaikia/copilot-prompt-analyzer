@@ -113,8 +113,11 @@ if (!manifest.icons?.some((i) => i.purpose === "maskable")) {
 for (const path of PAGES) {
   await settle(page, path);
   const head = await page.evaluate(() => {
-    const attr = (sel, a) => document.querySelector(sel)?.getAttribute(a) ?? null;
-    const ld = [...document.querySelectorAll('script[type="application/ld+json"]')]
+    const attr = (sel, a) =>
+      document.querySelector(sel)?.getAttribute(a) ?? null;
+    const ld = [
+      ...document.querySelectorAll('script[type="application/ld+json"]'),
+    ]
       .flatMap((s) => {
         const j = JSON.parse(s.textContent);
         return j["@graph"] ?? [j];
@@ -132,7 +135,10 @@ for (const path of PAGES) {
       appleIcon: !!document.querySelector('link[rel="apple-touch-icon"]'),
       maskIcon: !!document.querySelector('link[rel="mask-icon"]'),
       manifest: !!document.querySelector('link[rel="manifest"]'),
-      appleCapable: attr('meta[name="apple-mobile-web-app-capable"]', "content"),
+      appleCapable: attr(
+        'meta[name="apple-mobile-web-app-capable"]',
+        "content"
+      ),
       viewport: attr('meta[name="viewport"]', "content"),
       ld,
       brandMark: (() => {
@@ -140,16 +146,18 @@ for (const path of PAGES) {
         return img ? img.complete && img.naturalWidth > 0 : false;
       })(),
       toggles: document.querySelectorAll('input[name="theme"]').length,
-      footLinks: [...document.querySelectorAll(".foot-links a")].map(
-        (a) => a.getAttribute("href")
+      footLinks: [...document.querySelectorAll(".foot-links a")].map((a) =>
+        a.getAttribute("href")
       ),
     };
   });
 
   const label = path === "/" ? "home" : path;
   const problems = [];
-  if (!head.description || head.description.length < 70) problems.push("description");
-  if (!head.canonical?.startsWith("https://prompts.deb0.com")) problems.push("canonical");
+  if (!head.description || head.description.length < 70)
+    problems.push("description");
+  if (!head.canonical?.startsWith("https://prompts.deb0.com"))
+    problems.push("canonical");
   if (head.author !== "Debajyoti Saikia") problems.push("author");
   if (!head.robots?.includes("index")) problems.push("robots");
   if (head.og < 8) problems.push(`og(${head.og})`);
@@ -167,7 +175,10 @@ for (const path of PAGES) {
   if (!head.appleIcon || !head.maskIcon || !head.manifest) {
     bad("1 icons", `${label}: missing apple/mask/manifest link`);
   }
-  if (head.appleCapable !== "yes" || !head.viewport?.includes("viewport-fit=cover")) {
+  if (
+    head.appleCapable !== "yes" ||
+    !head.viewport?.includes("viewport-fit=cover")
+  ) {
     bad("6 mobile", `${label}: apple-web-app-capable/viewport-fit missing`);
   }
   if (!head.brandMark) {
@@ -337,7 +348,10 @@ for (const [name, device] of FACTORS) {
   if (worst) {
     bad("6 mobile", `${name}: ${worst}`);
   } else {
-    ok("6 mobile", `${name} (${device.viewport.width}x${device.viewport.height}): no overflow, 44px targets`);
+    ok(
+      "6 mobile",
+      `${name} (${device.viewport.width}x${device.viewport.height}): no overflow, 44px targets`
+    );
   }
   await ctx.close();
 }
@@ -363,5 +377,7 @@ for (const [key, title] of Object.entries(GROUPS)) {
   }
   console.log("");
 }
-console.log(fail.length ? `${fail.length} FAILURE(S)` : "all six requirements met");
+console.log(
+  fail.length ? `${fail.length} FAILURE(S)` : "all six requirements met"
+);
 process.exit(fail.length ? 1 : 0);
